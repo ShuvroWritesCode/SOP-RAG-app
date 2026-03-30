@@ -4,7 +4,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { ICreateProjectDTO, IUpdateProjectDTO } from './dto/project.dto';
 import { ProjectModel } from './entities/projects.model';
 import * as crypto from 'crypto';
-import { OpenaiKnowledgeService } from 'src/openai-knowledge/openai-knowledge.service';
+
 
 export type IConfig = {
   user_id: string;
@@ -26,47 +26,12 @@ export class ProjectsService {
   constructor(
     @InjectModel(ProjectModel)
     private projectModel: typeof ProjectModel,
-    private openaiKnowledgeService: OpenaiKnowledgeService,
   ) {}
 
   public async createProject(payload: IProjectCreatePayload) {
-    const projectWihoutAssistant = await this.projectModel.create({
-      ...payload,
-    });
-
-    const { dbId } = await this.openaiKnowledgeService.createOrGetAssistant(
-      projectWihoutAssistant.id,
-      undefined, // customInstructions
-      payload.user_id,
-    );
-
-    const project = await projectWihoutAssistant.update({
-      assistant_id: dbId,
-    });
+    const project = await this.projectModel.create({ ...payload });
     await this.setProjectLink(project);
     await project.save();
-
-    // Auto-train with shared files
-    try {
-      this.logger.log(
-        `Auto-training project ${project.id} with shared files for user ${payload.user_id}`,
-      );
-      await this.openaiKnowledgeService.trainNewProjectWithSharedFiles(
-        project.id,
-        payload.user_id,
-      );
-      this.logger.log(
-        `Successfully auto-trained project ${project.id} with shared files`,
-      );
-    } catch (error) {
-      this.logger.warn(
-        `Failed to auto-train project ${project.id} with shared files:`,
-        error,
-      );
-      // Don't fail project creation if shared file training fails
-      // The UI will show a "Train with Shared Files" button for manual retry
-    }
-
     return project;
   }
 

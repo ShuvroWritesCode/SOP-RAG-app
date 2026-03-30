@@ -68,19 +68,7 @@ export class IdResolutionInterceptor implements NestInterceptor {
 
     try {
       // Resolve missing IDs based on available ones
-      if (projectId && !assistantId) {
-        request.assistantId =
-          await this.identityService.getAssistantIdByProjectId(
-            String(projectId),
-          );
-      }
-
-      if (assistantId && !projectId) {
-        request.projectId =
-          await this.identityService.getProjectIdByAssistantId(
-            String(assistantId),
-          );
-      }
+      // (assistant IDs no longer used in RAG mode)
 
       if (conversationId && !projectId) {
         request.projectId =

@@ -1,13 +1,4 @@
-import {
-  Column,
-  DataType,
-  Model,
-  PrimaryKey,
-  Table,
-  ForeignKey,
-  BelongsTo,
-} from 'sequelize-typescript';
-import { ProjectAssistantModel } from './project-assistant.model';
+import { Column, DataType, Model, PrimaryKey, Table } from 'sequelize-typescript';
 
 @Table({
   tableName: 'project_files',
@@ -16,47 +7,22 @@ import { ProjectAssistantModel } from './project-assistant.model';
 })
 export class ProjectFileModel extends Model<ProjectFileModel> {
   @PrimaryKey
-  @Column({
-    type: DataType.UUID,
-    defaultValue: DataType.UUIDV4,
-  })
+  @Column({ type: DataType.UUID, defaultValue: DataType.UUIDV4 })
   id: string;
 
-  @ForeignKey(() => ProjectAssistantModel)
-  @Column({
-    type: DataType.UUID,
-    allowNull: true,
-  })
-  assistant_id: string;
+  @Column({ type: DataType.UUID, allowNull: true })
+  project_id: string | null;
 
-  @Column({
-    type: DataType.UUID,
-    allowNull: false,
-  })
+  @Column({ type: DataType.UUID, allowNull: false })
   user_id: string;
 
-  @Column({
-    type: DataType.STRING(255),
-    allowNull: true,
-  })
-  openai_file_id: string;
-
-  @Column({
-    type: DataType.STRING(255),
-    allowNull: false,
-  })
+  @Column({ type: DataType.STRING(255), allowNull: false })
   filename: string;
 
-  @Column({
-    type: DataType.STRING(100),
-    allowNull: false,
-  })
+  @Column({ type: DataType.STRING(100), allowNull: false })
   file_type: string;
 
-  @Column({
-    type: DataType.INTEGER,
-    allowNull: true,
-  })
+  @Column({ type: DataType.INTEGER, allowNull: true })
   file_size: number;
 
   @Column({
@@ -65,12 +31,6 @@ export class ProjectFileModel extends Model<ProjectFileModel> {
   })
   status: string;
 
-  @Column({
-    type: DataType.BOOLEAN,
-    defaultValue: false,
-  })
+  @Column({ type: DataType.BOOLEAN, defaultValue: false })
   shared: boolean;
-
-  @BelongsTo(() => ProjectAssistantModel)
-  assistant: ProjectAssistantModel;
 }

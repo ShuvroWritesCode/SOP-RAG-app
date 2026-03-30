@@ -1,5 +1,4 @@
 import {
-  BelongsTo,
   Column,
   DataType,
   Index,
@@ -7,8 +6,6 @@ import {
   PrimaryKey,
   Table,
 } from 'sequelize-typescript';
-import { ProjectAssistantModel } from 'src/openai-knowledge/entities/project-assistant.model';
-import { UserModel } from 'src/users/entities/user.model';
 
 @Table({
   tableName: 'projects',

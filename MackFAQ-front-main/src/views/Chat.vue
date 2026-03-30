@@ -398,62 +398,95 @@ export default {
 		async sendMessage() {
 			if (!this.form.text.trim() || this.isLoading) return;
 
-			const userMessage = {
-				type: "question",
-				text: this.form.text,
-				timestamp: new Date(),
-			};
-
-			this.questions.push(userMessage);
-			this.isLoading = true;
-
 			const messageText = this.form.text;
 			this.form.text = "";
+			this.isLoading = true;
+
+			// Push user message immediately
+			this.questions.push({
+				type: "question",
+				text: messageText,
+				timestamp: new Date(),
+			});
+
+			// Push empty AI message placeholder for streaming
+			const aiMessage = {
+				type: "answer",
+				text: "",
+				sources: [],
+				sopReferences: [],
+				timestamp: new Date(),
+			};
+			this.questions.push(aiMessage);
+			const aiMsgIdx = this.questions.length - 1;
 
 			const userProfile = this.$store.getters.getProfile;
 			const userId = userProfile?.id || null;
-			const createdAt = new Date().toISOString();
+
+			const params = new URLSearchParams({
+				prompt: messageText,
+				...(this.selectedProject && { project_id: this.selectedProject }),
+				...(this.currentConversationId && { conversationId: this.currentConversationId }),
+				...(userId && { userId }),
+			});
+
+			// Grab the JWT token that axios interceptors attach
+			const token = axios.defaults.headers.common["Authorization"];
 
 			try {
-				const response = await axios.get("/api/complete", {
-					params: {
-						prompt: messageText,
-						project_id: this.selectedProject || null,
-						includeSOP: this.includeSOP,
-						model: this.selectedModel,
-						conversationId: this.currentConversationId || null,
-						userId: userId,
-						createdAt: createdAt,
-						filesToUse: this.selectedFiles.length ?
-							this.selectedFiles :
-							null,
+				const response = await fetch(`/api/complete?${params}`, {
+					headers: {
+						...(token && { Authorization: token }),
+						Accept: "text/event-stream",
 					},
 				});
 
-				const aiMessage = {
-					type: "answer",
-					text: response.data.data.answer,
-					sources: response.data.data.sources || [],
-					sopReferences: response.data.data.sopReferences || [],
-					timestamp: new Date(),
-				};
-
-				if (response.data.data.conversationId) {
-					this.currentConversationId = response.data.data.conversationId;
-
-					// Update URL to include conversation ID if we're on a new chat
-					if (!this.$route.params.conversationId) {
-						this.$router.push(`/chat/${this.currentConversationId}`);
-					}
-
-					// Reload chat history to include the new conversation
-					await this.loadChatHistory();
+				if (!response.ok) {
+					throw new Error(`HTTP ${response.status}`);
 				}
-				this.questions.push(aiMessage);
+
+				const reader = response.body.getReader();
+				const decoder = new TextDecoder();
+				let buffer = "";
+
+				while (true) {
+					const { done, value } = await reader.read();
+					if (done) break;
+
+					buffer += decoder.decode(value, { stream: true });
+					const lines = buffer.split("\n");
+					buffer = lines.pop() || "";
+
+					for (const line of lines) {
+						if (!line.startsWith("data: ")) continue;
+						try {
+							const data = JSON.parse(line.slice(6));
+
+							if (data.token) {
+								this.questions[aiMsgIdx].text += data.token;
+								this.scrollToBottom();
+							}
+
+							if (data.done) {
+								this.currentConversationId = data.conversationId;
+								if (!this.$route.params.conversationId) {
+									this.$router.push(`/chat/${data.conversationId}`);
+								}
+								await this.loadChatHistory();
+							}
+
+							if (data.error) {
+								this.questions.splice(aiMsgIdx, 1);
+								console.error("Stream error:", data.error);
+							}
+						} catch {
+							// malformed chunk — ignore
+						}
+					}
+				}
 			} catch (error) {
 				console.error("Failed to send message:", error);
-				// this.$toast.error("Failed to send message. Please try again.");
-				this.questions.pop();
+				this.questions.splice(aiMsgIdx, 1);
 			} finally {
 				this.isLoading = false;
 				this.$nextTick(() => {
