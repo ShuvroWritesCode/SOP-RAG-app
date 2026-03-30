@@ -202,7 +202,7 @@ div.form {
         flex-grow: 1;
         margin-right: 10px;
         background: var(--colBg);
-        color: #686868;
+        color: #e2e8f0;
         min-height: 30px;
         min-width: 100%;
         border-radius: 27px;
@@ -221,7 +221,7 @@ div.form {
         -moz-appearance: none;
         appearance: none;
 
-        box-shadow: 5px 5px 5px #93a1b0bf;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 
     }
 
@@ -246,7 +246,7 @@ table {
 }
 
 tr {
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid #334155;
 }
 
 tr:last-child {

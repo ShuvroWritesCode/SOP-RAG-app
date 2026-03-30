@@ -12,30 +12,30 @@
 
 :root {
 	--font: 'Inter', sans-serif;
-	
+
 	/* Legacy colors (for backward compatibility) */
 	--colAkcent: #2563eb;
-	--colBg: #f1f5f9;
-	
+	--colBg: #1e293b;
+
 	/* Professional Color Palette - Primary Colors */
 	--primary-blue: #2563eb;
 	--primary-blue-light: #3b82f6;
 	--primary-blue-dark: #1d4ed8;
-	
-	/* Neutral Colors - Grays */
-	--gray-50: #f8fafc;
-	--gray-100: #f1f5f9;
-	--gray-200: #e2e8f0;
-	--gray-300: #cbd5e1;
-	--gray-400: #94a3b8;
-	--gray-500: #64748b;
-	--gray-600: #475569;
-	--gray-700: #334155;
-	--gray-800: #1e293b;
-	--gray-900: #0f172a;
-	
+
+	/* Neutral Colors - Grays (inverted for dark mode) */
+	--gray-50: #0f172a;
+	--gray-100: #1e293b;
+	--gray-200: #334155;
+	--gray-300: #475569;
+	--gray-400: #64748b;
+	--gray-500: #94a3b8;
+	--gray-600: #cbd5e1;
+	--gray-700: #e2e8f0;
+	--gray-800: #f1f5f9;
+	--gray-900: #f8fafc;
+
 	/* Accent Colors */
-	--success-green: #10b981;
+	--success-green: #22c55e;
 	--success-green-light: #34d399;
 	--warning-amber: #f59e0b;
 	--warning-amber-light: #fbbf24;
@@ -43,13 +43,13 @@
 	--danger-red-light: #f87171;
 	--info-cyan: #06b6d4;
 	--info-cyan-light: #22d3ee;
-	
+
 	/* Project Management Specific */
-	--project-card-bg: #ffffff;
-	--project-card-border: var(--gray-200);
-	--project-card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-	--project-card-shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-	
+	--project-card-bg: #1e293b;
+	--project-card-border: #334155;
+	--project-card-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3);
+	--project-card-shadow-hover: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+
 	/* File Type Colors */
 	--file-pdf: #dc2626;
 	--file-excel: #16a34a;
@@ -66,7 +66,8 @@ body,
 body {
 	font-family: var(--font);
 	line-height: 1.4;
-	color: #000;
+	color: #e2e8f0;
+	background-color: #0f172a;
 }
 
 a {
@@ -74,15 +75,15 @@ a {
 }
 
 .rounded-container {
-	background: #c2d3e5;
+	background: #1e293b;
 	border-radius: 27px;
 	padding: 1rem 0.9rem 1rem 0.9rem;
 	display: flex;
 	font-size: 13px;
 	flex-direction: column;
-	background-color: #d8dee3;
+	background-color: #1e293b;
 	gap: 20px;
-	box-shadow: 5px 5px 5px #93a1b0bf, -3px -3px rgba(255, 255, 255, 0.377);
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 img {
@@ -115,7 +116,7 @@ textarea::placeholder {
 	font-size: 16px;
 	background: var(--colBg);
 	border-radius: 71px;
-	color: #545454;
+	color: #cbd5e1;
 	padding: 15px 25px;
 	outline: 1px solid transparent;
 
@@ -127,7 +128,7 @@ textarea::placeholder {
 	align-items: center;
 
 	border-radius: 70px!important;
-    box-shadow: 5px 5px 5px #93a1b0bf, -3px -3px rgba(255, 255, 255, 0.377);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 
 	&:hover,
 	&.active {
@@ -157,16 +158,25 @@ form {
 
 		input,
 		textarea {
-			background: var(--colBg);
-			border: 1px solid var(--colAkcent);
+			background: #1e293b;
+			border: 1px solid #475569;
 			border-radius: 12px;
 			font-weight: 400;
 			font-size: 16px;
-			color: #fff;
+			color: #e2e8f0;
 			display: block;
 			width: 100%;
 			min-height: 30px;
 			padding: 10px;
+
+			&::placeholder {
+				color: #94a3b8;
+			}
+
+			&:focus {
+				border-color: var(--colAkcent);
+				box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+			}
 		}
 
 		textarea {
@@ -183,12 +193,12 @@ form {
 			}
 
 			.file {
-				background: var(--colBg);
-				border: 1px dashed var(--colAkcent);
+				background: #1e293b;
+				border: 1px dashed #475569;
 				border-radius: 12px;
 				padding: 7px 8px;
 				display: flex;
-				color: white;
+				color: #e2e8f0;
 			}
 
 			.button {
@@ -213,7 +223,7 @@ form {
 			.name {
 				font-weight: 400;
 				font-size: 16px;
-				color: black;
+				color: #e2e8f0;
 				padding: 10px 15px;
 			}
 
@@ -308,12 +318,12 @@ form {
 }
 
 .prompt {
-	color: black;
+	color: #e2e8f0;
 	font-size: x-large;
 	width: 100%;
 
 	border-radius: 10px;
-	background: var(--colBg);
+	background: #1e293b;
 	padding: 10px;
 	margin-bottom: 10px;
 }
@@ -332,59 +342,59 @@ form {
 	cursor: pointer;
 	transition: all 0.15s ease-in-out;
 	text-decoration: none;
-	
+
 	&.btn-primary {
 		background-color: var(--primary-blue);
 		color: white;
 		border-color: var(--primary-blue);
-		
+
 		&:hover {
 			background-color: var(--primary-blue-light);
 			border-color: var(--primary-blue-light);
 		}
-		
+
 		&:active {
 			background-color: var(--primary-blue-dark);
 			border-color: var(--primary-blue-dark);
 		}
 	}
-	
+
 	&.btn-secondary {
-		background-color: white;
-		color: var(--gray-700);
-		border-color: var(--gray-300);
-		
+		background-color: #1e293b;
+		color: #e2e8f0;
+		border-color: #475569;
+
 		&:hover {
-			background-color: var(--gray-50);
-			border-color: var(--gray-400);
+			background-color: #334155;
+			border-color: #64748b;
 		}
 	}
-	
+
 	&.btn-success {
 		background-color: var(--success-green);
 		color: white;
 		border-color: var(--success-green);
-		
+
 		&:hover {
 			background-color: var(--success-green-light);
 		}
 	}
-	
+
 	&.btn-danger {
 		background-color: var(--danger-red);
 		color: white;
 		border-color: var(--danger-red);
-		
+
 		&:hover {
 			background-color: var(--danger-red-light);
 		}
 	}
-	
+
 	&.btn-sm {
 		padding: 0.375rem 0.75rem;
 		font-size: 0.75rem;
 	}
-	
+
 	&.btn-icon {
 		width: 2rem;
 		height: 2rem;
@@ -395,19 +405,19 @@ form {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		color: var(--gray-600);
-		
+		color: var(--gray-500);
+
 		&:hover {
-			background-color: var(--gray-100);
+			background-color: #334155;
 			color: var(--gray-900);
 		}
-		
+
 		&.btn-danger {
 			color: var(--danger-red);
-			
+
 			&:hover {
-				background-color: #fef2f2;
-				color: #dc2626;
+				background-color: rgba(239, 68, 68, 0.15);
+				color: #f87171;
 			}
 		}
 	}
@@ -420,17 +430,17 @@ form {
 	border-radius: 0.5rem;
 	box-shadow: var(--project-card-shadow);
 	transition: all 0.15s ease-in-out;
-	
+
 	&:hover {
 		box-shadow: var(--project-card-shadow-hover);
 	}
-	
+
 	.card-header {
 		padding: 1rem 1.5rem;
-		border-bottom: 1px solid var(--gray-200);
-		background-color: var(--gray-50);
+		border-bottom: 1px solid #334155;
+		background-color: #0f172a;
 		border-radius: 0.5rem 0.5rem 0 0;
-		
+
 		h3 {
 			margin: 0;
 			color: var(--gray-800);
@@ -438,15 +448,15 @@ form {
 			font-weight: 600;
 		}
 	}
-	
+
 	.card-body {
 		padding: 1.5rem;
 	}
-	
+
 	.card-footer {
 		padding: 1rem 1.5rem;
-		border-top: 1px solid var(--gray-200);
-		background-color: var(--gray-50);
+		border-top: 1px solid #334155;
+		background-color: #0f172a;
 		border-radius: 0 0 0.5rem 0.5rem;
 	}
 }
@@ -454,7 +464,7 @@ form {
 /* Modern Form Elements */
 .form-group {
 	margin-bottom: 1.5rem;
-	
+
 	&:last-child {
 		margin-bottom: 0;
 	}
@@ -471,21 +481,27 @@ form {
 .form-select, .form-textarea, .form-input {
 	width: 100%;
 	padding: 0.75rem;
-	border: 1px solid var(--gray-300);
+	border: 1px solid #475569;
 	border-radius: 0.375rem;
 	font-size: 0.875rem;
 	transition: all 0.15s ease-in-out;
-	
+	background-color: #1e293b;
+	color: #e2e8f0;
+
 	&:focus {
 		outline: none;
 		border-color: var(--primary-blue);
-		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+		box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
 	}
-	
+
 	&:disabled {
-		background-color: var(--gray-100);
-		color: var(--gray-500);
+		background-color: #0f172a;
+		color: #64748b;
 		cursor: not-allowed;
+	}
+
+	&::placeholder {
+		color: #94a3b8;
 	}
 }
 
@@ -494,25 +510,25 @@ form {
 	align-items: flex-start;
 	gap: 0.75rem;
 	cursor: pointer;
-	
+
 	input[type="checkbox"] {
 		width: 1.25rem;
 		height: 1.25rem;
-		border: 2px solid var(--gray-300);
+		border: 2px solid #475569;
 		border-radius: 0.25rem;
 		flex-shrink: 0;
 		margin-top: 0.125rem;
-		
+
 		&:checked {
 			background-color: var(--primary-blue);
 			border-color: var(--primary-blue);
 		}
 	}
-	
+
 	.checkbox-text {
 		font-size: 0.875rem;
 		color: var(--gray-700);
-		
+
 		small {
 			display: block;
 			color: var(--gray-500);
@@ -526,12 +542,12 @@ form {
 .projects-workspace {
 	min-height: 100vh;
 	background-color: transparent;
-	
+
 	.workspace-header {
 		background-color: transparent;
-		border-bottom: 1px solid var(--gray-200);
+		border-bottom: 1px solid #334155;
 		padding: 1.5rem 0.5rem;
-		
+
 		.header-content {
 			display: flex;
 			justify-content: space-between;
@@ -539,7 +555,7 @@ form {
 			max-width: 1400px;
 			margin: 0 auto;
 		}
-		
+
 		.header-title {
 			h1 {
 				margin: 0;
@@ -547,15 +563,15 @@ form {
 				font-size: 1.875rem;
 				font-weight: 700;
 			}
-			
+
 			.subtitle {
 				margin: 0.25rem 0 0 0;
-				color: var(--gray-600);
+				color: var(--gray-500);
 				font-size: 1rem;
 			}
 		}
 	}
-	
+
 	.workspace-grid {
 		display: grid;
 		grid-template-columns: 400px 1fr;
@@ -569,106 +585,106 @@ form {
 
 /* Projects Panel */
 .projects-panel {
-	background-color: white;
+	background-color: #1e293b;
 	border-radius: 0.5rem;
-	border: 1px solid var(--gray-200);
+	border: 1px solid #334155;
 	height: fit-content;
-	
+
 	.panel-header {
 		padding: 1.5rem;
-		border-bottom: 1px solid var(--gray-200);
+		border-bottom: 1px solid #334155;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		
+
 		h2 {
 			margin: 0;
 			color: var(--gray-900);
 			font-size: 1.25rem;
 			font-weight: 600;
 		}
-		
+
 		.project-stats {
 			display: flex;
 			gap: 1rem;
-			
+
 			.stat-item {
 				text-align: center;
-				
+
 				.stat-number {
 					display: block;
 					font-size: 1.25rem;
 					font-weight: 700;
 					color: var(--primary-blue);
 				}
-				
+
 				.stat-label {
 					font-size: 0.75rem;
-					color: var(--gray-600);
+					color: var(--gray-500);
 					text-transform: uppercase;
 					letter-spacing: 0.05em;
 				}
 			}
 		}
 	}
-	
+
 	.projects-list {
 		max-height: 600px;
 		overflow-y: auto;
 	}
-	
+
 	.project-card {
 		padding: 1rem 1.5rem;
-		border-bottom: 1px solid var(--gray-100);
+		border-bottom: 1px solid #334155;
 		cursor: pointer;
 		transition: all 0.15s ease-in-out;
 		display: flex;
 		justify-content: space-between;
 		align-items: center;
-		
+
 		&:hover {
-			background-color: var(--gray-50);
+			background-color: #334155;
 		}
-		
+
 		&.selected {
 			background-color: var(--primary-blue);
 			color: white;
-			
+
 			.project-name {
 				color: white;
 			}
-			
+
 			.project-meta {
 				color: rgba(255, 255, 255, 0.8);
 			}
 		}
-		
+
 		.project-info {
 			flex: 1;
-			
+
 			.project-name {
 				margin: 0 0 0.25rem 0;
 				font-size: 1rem;
 				font-weight: 600;
 				color: var(--gray-900);
 			}
-			
+
 			.project-meta {
 				margin: 0;
 				font-size: 0.875rem;
-				color: var(--gray-600);
+				color: var(--gray-500);
 				display: flex;
 				gap: 1rem;
 			}
 		}
-		
+
 		.project-actions {
 			display: flex;
 			gap: 0.5rem;
 			opacity: 0;
 			transition: opacity 0.15s ease-in-out;
 		}
-		
+
 		&:hover .project-actions {
 			opacity: 1;
 		}
@@ -682,7 +698,7 @@ form {
 			gap: 1rem;
 			padding: 1rem;
 		}
-		
+
 		.projects-panel {
 			.projects-list {
 				max-height: 300px;
@@ -695,7 +711,7 @@ form {
 	.prompt {
 		min-height: 85px;
 	}
-	
+
 	.workspace-header {
 		.header-content {
 			flex-direction: column;

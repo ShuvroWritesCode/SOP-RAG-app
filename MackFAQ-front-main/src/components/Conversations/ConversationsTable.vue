@@ -246,9 +246,9 @@ export default {
 
 <style lang="scss" scoped>
 .conversations-table-container {
-  background: white;
+  background: #1e293b;
   border-radius: 0.5rem;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
 }
 
 // .table-wrapper {
@@ -386,7 +386,7 @@ export default {
     font-size: 0.875rem;
     font-weight: 500;
     color: var(--gray-900);
-    background: white;
+    background: #0f172a;
     outline: none;
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
 
@@ -455,10 +455,10 @@ export default {
     position: absolute;
     top: 100%;
     right: 0;
-    background: white;
-    border: 1px solid var(--gray-200);
+    background: #1e293b;
+    border: 1px solid #475569;
     border-radius: 0.375rem;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
     z-index: 50;
     min-width: 120px;
     overflow: hidden;

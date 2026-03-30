@@ -53,12 +53,17 @@ export class UsersService {
     }
 
     // Get the default assistant from project_assistants table
-    const defaultAssistant =
-      await this.openaiKnowledgeService.createOrGetAssistant(
-        null, // project_id = null for default assistant
-        undefined, // use default instructions
-        user.id.toString(),
-      );
+    let defaultAssistant = null;
+    try {
+      defaultAssistant =
+        await this.openaiKnowledgeService.createOrGetAssistant(
+          null, // project_id = null for default assistant
+          undefined, // use default instructions
+          user.id.toString(),
+        );
+    } catch (error) {
+      console.error('Failed to get/create assistant for user, continuing without it:', error.message);
+    }
 
     return {
       user,

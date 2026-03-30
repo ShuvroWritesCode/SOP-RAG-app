@@ -844,10 +844,10 @@ export default {
 }
 
 .workspace-header {
-	background: rgba(255, 255, 255, 0.95);
+	background: rgba(30, 41, 59, 0.95);
 	backdrop-filter: blur(10px);
-	border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-	box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+	border-bottom: 1px solid #334155;
+	box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
 	position: sticky;
 	top: 0;
 	z-index: 100;
@@ -871,9 +871,9 @@ export default {
 			align-items: center;
 			gap: 0.5rem;
 			padding: 0.5rem 1rem;
-			background: rgba(107, 114, 128, 0.1);
+			background: rgba(71, 85, 105, 0.3);
 			color: var(--gray-600);
-			border: 1px solid rgba(107, 114, 128, 0.2);
+			border: 1px solid #475569;
 			border-radius: 0.375rem;
 			font-weight: 500;
 			cursor: pointer;

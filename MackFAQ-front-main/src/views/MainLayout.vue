@@ -46,10 +46,10 @@ export default {
 }
 
 .top-header {
-  background: rgba(255, 255, 255, 0.95);
+  background: rgba(30, 41, 59, 0.95);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid #334155;
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -74,7 +74,7 @@ export default {
       font-size: 1.5rem;
       font-weight: 700;
       color: var(--gray-900);
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
@@ -118,10 +118,10 @@ export default {
 }
 
 .top-navbar {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(30, 41, 59, 0.9);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid #334155;
+  box-shadow: 0 1px 10px rgba(0, 0, 0, 0.2);
   position: sticky;
   top: 80px;
   z-index: 90;

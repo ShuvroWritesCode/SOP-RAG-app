@@ -184,9 +184,9 @@ export default {
 
 /* Modal Content */
 .modal-content {
-  background: white;
+  background: #1e293b;
   border-radius: 0.5rem;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
   max-width: 500px;
   width: 90%;
   max-height: 90vh;
@@ -342,9 +342,9 @@ export default {
 }
 
 .btn-secondary {
-  background-color: white;
-  color: var(--gray-700);
-  border-color: var(--gray-300);
+  background-color: #334155;
+  color: #e2e8f0;
+  border-color: #475569;
 
   &:hover:not(:disabled) {
     background-color: var(--gray-50);

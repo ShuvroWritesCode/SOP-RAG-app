@@ -52,7 +52,7 @@ export default {
 			gap: 0.5rem;
 			padding: 0.5rem 1rem;
 			border-radius: 0.375rem;
-			color: var(--gray-700);
+			color: #cbd5e1;
 			text-decoration: none;
 			font-weight: 500;
 			transition: all 0.2s ease;
@@ -65,7 +65,7 @@ export default {
 
 			i {
 				font-size: 0.875rem;
-				color: var(--gray-500);
+				color: #94a3b8;
 			}
 
 			span {

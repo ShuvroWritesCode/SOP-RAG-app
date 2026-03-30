@@ -44,7 +44,7 @@ export default {
       if (this.isRefreshingAuth) {
         return;
       }
-      
+
       if (this.isAuthRequired == null) {
         this.loaded = false;
         return;
@@ -97,6 +97,7 @@ export default {
 .app-container {
   min-height: 100vh;
   position: relative;
+  background-color: #0f172a;
 }
 
 #backgroundVideo {
@@ -115,16 +116,16 @@ export default {
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(241, 241, 241, 0.1);
+  background: #0f172a;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(193, 193, 193, 0.6);
+  background: #475569;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(168, 168, 168, 0.8);
+  background: #64748b;
 }
 </style>

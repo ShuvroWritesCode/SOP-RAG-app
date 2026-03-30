@@ -609,9 +609,9 @@ export default {
 }
 
 .modal-content {
-	background: white;
+	background: #1e293b;
 	border-radius: 0.5rem;
-	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
 	max-width: 500px;
 	width: 90%;
 	max-height: 90vh;
@@ -738,8 +738,8 @@ export default {
 	}
 
 	&:disabled {
-		background-color: #fca5a5;
-		border-color: #fca5a5;
+		background-color: rgba(239, 68, 68, 0.4);
+		border-color: rgba(239, 68, 68, 0.4);
 		cursor: not-allowed;
 		transform: none;
 		box-shadow: none;

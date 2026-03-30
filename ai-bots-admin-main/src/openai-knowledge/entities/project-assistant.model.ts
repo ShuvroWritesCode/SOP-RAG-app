@@ -71,7 +71,7 @@ export class ProjectAssistantModel extends Model<ProjectAssistantModel> {
 
   @Column({
     type: DataType.STRING(100),
-    defaultValue: 'gpt-4-1106-preview',
+    defaultValue: 'gpt-4o',
   })
   model: string;
 

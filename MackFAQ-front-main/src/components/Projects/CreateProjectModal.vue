@@ -141,9 +141,9 @@ export default {
 }
 
 .modal-content {
-	background: white;
+	background: #1e293b;
 	border-radius: 0.5rem;
-	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+	box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
 	max-width: 500px;
 	width: 90%;
 	max-height: 90vh;
@@ -223,8 +223,8 @@ export default {
 		border-radius: 0.375rem;
 		font-size: 0.875rem;
 		transition: all 0.15s ease-in-out;
-		background: white;
-		color: var(--gray-900);
+		background: #0f172a;
+		color: #e2e8f0;
 
 		&:focus {
 			outline: none;

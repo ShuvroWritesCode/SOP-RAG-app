@@ -1186,13 +1186,13 @@ export default {
 <style lang="scss">
 .modern-train-page {
   min-height: 100vh;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(15, 23, 42, 0.5);
   backdrop-filter: blur(10px);
 
   .train-header {
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(30, 41, 59, 0.95);
     backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 1px solid #334155;
     padding: 2rem 0;
     margin-bottom: 2rem;
 
@@ -1206,7 +1206,7 @@ export default {
         margin: 0 0 0.5rem 0;
         font-size: 2.5rem;
         font-weight: 700;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -1319,9 +1319,9 @@ export default {
       gap: 0.5rem;
       align-items: center;
       padding: 0.75rem;
-      background: var(--gray-50);
+      background: #0f172a;
       border-radius: 0.375rem;
-      border: 1px solid var(--gray-200);
+      border: 1px solid #334155;
 
       .url-text {
         flex: 1;
@@ -1469,10 +1469,10 @@ export default {
   .modern-table {
     width: 100%;
     border-collapse: collapse;
-    background: white;
+    background: #1e293b;
     border-radius: 0.5rem;
     overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 
     thead {
       background: var(--gray-50);
@@ -1678,7 +1678,7 @@ export default {
     gap: 1rem;
     transition: all 0.15s ease-in-out;
     position: relative;
-    background: white;
+    background: #1e293b;
 
     &:hover {
       border-color: var(--primary-blue);

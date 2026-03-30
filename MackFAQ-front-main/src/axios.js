@@ -18,8 +18,13 @@ function reject(error) {
         return;
     }
 
-    // Handle unauthorized access
+    // Handle unauthorized access (skip for token refresh endpoint)
     if (error.response?.status === 401) {
+        const requestUrl = error.config?.url || '';
+        if (requestUrl.includes('/auth/refresh')) {
+            // Let the store's refreshAuth catch handler deal with it
+            throw error;
+        }
         console.log('401 Unauthorized - redirecting to login');
         localStorage.removeItem('t'); // Clear invalid token
         router.push({ name: 'Login' });

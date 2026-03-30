@@ -517,13 +517,13 @@ export default {
 <style lang="scss">
 .modern-chats-page {
     min-height: 100vh;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(15, 23, 42, 0.5);
     backdrop-filter: blur(10px);
 
     .chats-header {
-        background: rgba(255, 255, 255, 0.95);
+        background: rgba(30, 41, 59, 0.95);
         backdrop-filter: blur(10px);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        border-bottom: 1px solid #334155;
         padding: 2rem 0;
         margin-bottom: 2rem;
 
@@ -537,7 +537,7 @@ export default {
                 margin: 0 0 0.5rem 0;
                 font-size: 2.5rem;
                 font-weight: 700;
-                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
                 -webkit-background-clip: text;
                 -webkit-text-fill-color: transparent;
                 background-clip: text;
@@ -596,8 +596,8 @@ export default {
             align-items: center;
             justify-content: space-between;
             padding: 1rem 1.5rem;
-            background: white;
-            border: 1px solid var(--gray-200);
+            background: #1e293b;
+            border: 1px solid #334155;
             border-radius: 0.5rem;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -757,7 +757,7 @@ table.chats-list {
 
     .message-ts {
         margin-top: 15px;
-        color: rgb(80, 80, 80);
+        color: #94a3b8;
         font-size: 12px;
         white-space: nowrap;
         font-weight: normal;
@@ -775,12 +775,12 @@ table.chats-list {
 
         &.user_message {
             margin-right: auto;
-            background: #5ed1ff;
+            background: #1d4ed8;
         }
 
         &.ai_message {
             margin-left: auto;
-            background: #5effc9;
+            background: #334155;
         }
 
         &:last-child {
@@ -799,7 +799,7 @@ table.chats-list {
     bottom: 0;
     min-height: 100vh;
     min-width: 100vw;
-    background: #8585859a;
+    background: rgba(0, 0, 0, 0.7);
     overflow-y: scroll;
 
     display: none;
@@ -815,7 +815,7 @@ table.chats-list {
         margin-right: auto;
         margin-top: 10%;
 
-        background: #fff;
+        background: #1e293b;
         min-height: 80%;
         max-height: 80%;
         height: 80%;
@@ -941,7 +941,7 @@ table {
 }
 
 tr {
-    border-bottom: 1px solid #bdc3cb;
+    border-bottom: 1px solid #334155;
 }
 
 tr:last-child {

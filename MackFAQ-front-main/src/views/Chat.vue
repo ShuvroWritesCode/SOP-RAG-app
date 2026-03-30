@@ -546,7 +546,7 @@ export default {
 /* Main Layout */
 .chat-workspace {
 	height: 100vh;
-	border: 1px solid var(--gray-400);
+	border: 1px solid #334155;
 	// background-color: var(--gray-50);
 	display: flex;
 	flex-direction: column;
@@ -554,8 +554,8 @@ export default {
 }
 
 .chat-header {
-	background-color: white;
-	border-bottom: 1px solid var(--gray-200);
+	background-color: #1e293b;
+	border-bottom: 1px solid #334155;
 	padding: 1rem 2rem;
 	z-index: 10;
 	flex-shrink: 0;
@@ -724,9 +724,9 @@ export default {
 			}
 
 			.message-content {
-				background-color: white;
-				color: var(--gray-900);
-				border: 1px solid var(--gray-200);
+				background-color: #334155;
+				color: #e2e8f0;
+				border: 1px solid #475569;
 				border-radius: 1rem 1rem 1rem 0.25rem;
 			}
 		}
@@ -747,7 +747,7 @@ export default {
 			padding: 1rem 1.5rem;
 			font-size: 0.875rem;
 			line-height: 1.5;
-			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+			box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 
 			.message-text {
 				margin-bottom: 0.5rem;
@@ -807,7 +807,7 @@ export default {
 /* Chat Input Area */
 .chat-input {
 	flex-shrink: 0;
-	background-color: #ffffff;
+	background-color: #1e293b;
 	border-top: 1px solid var(--gray-200);
 	padding: 1rem 2rem;
 	z-index: 5;
@@ -820,10 +820,10 @@ export default {
 			display: flex;
 			gap: 1rem;
 			align-items: flex-end;
-			background-color: #fff;
+			background-color: #0f172a;
 			padding: 0.5rem;
 			border-radius: 0.75rem;
-			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 
 			.input-field {
 				flex: 1;
@@ -904,7 +904,7 @@ export default {
 	width: 280px;
 	flex-shrink: 0;
 	// background-color: #f8f9fa;
-	border-left: 1px solid var(--gray-400);
+	border-left: 1px solid #334155;
 	display: flex;
 	flex-direction: column;
 	transition: margin-right 0.3s ease-in-out;
@@ -1036,9 +1036,9 @@ export default {
 	width: 32px;
 	height: 32px;
 	border-radius: 50%;
-	background-color: white;
-	border: 1px solid var(--gray-300);
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+	background-color: #1e293b;
+	border: 1px solid #475569;
+	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1072,7 +1072,7 @@ export default {
 }
 
 .modal-content {
-	background-color: white;
+	background-color: #1e293b;
 	border-radius: 0.5rem;
 	max-width: 500px;
 	width: 90%;
@@ -1187,7 +1187,7 @@ export default {
 
 		&:not(.collapsed) {
 			margin-right: 0;
-			box-shadow: -5px 0 15px rgba(0, 0, 0, 0.1);
+			box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
 		}
 	}
 

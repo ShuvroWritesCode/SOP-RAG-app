@@ -125,7 +125,7 @@ export class OpenaiKnowledgeService {
             vector_store_ids: [vectorStore.id],
           },
         },
-        model: 'gpt-4-1106-preview',
+        model: 'gpt-4o',
       });
 
       // Save to database with user and bot information
