@@ -1,188 +1,183 @@
-# Multi Project Management & SOP Framework AI
+# SOP RAG App
 
-## Project Overview
-This project transforms an existing AI chatbot training system into a comprehensive project management platform with AI-powered document analysis and SOP compliance checking. The system enables users to upload project documents, configure AI settings, and query documents with cross-reference to company Standard Operating Procedures (SOPs).
+A RAG (Retrieval-Augmented Generation) platform for Standard Operating Procedures, powered by OpenRouter, PostgreSQL + pgvector, NestJS, and Vue 3.
 
-## Current System Architecture
+| Component | Tech | Port |
+|-----------|------|------|
+| Frontend | Vue 3 (webpack-dev-server) | 8080 |
+| Backend | NestJS | 3000 |
+| Database | PostgreSQL 16 + pgvector | 5432 |
+| AI | OpenRouter (OpenAI-compatible) | — |
 
-### Backend (NestJS)
-- **Framework**: NestJS with TypeScript
-- **Database**: MySQL with Sequelize ORM
-- **Authentication**: JWT with Passport.js
-- **File Processing**: Custom service with external API integration
-- **AI Integration**: OpenAI API with vector database support
+---
 
-### Frontend (Vue.js)
-- **Framework**: Vue.js 3 with Composition API
-- **Styling**: SCSS with custom styling
-- **State Management**: Vuex
-- **Routing**: Vue Router
+## Option A — Docker Compose (recommended)
 
-## Key Features Being Added
+### Prerequisites
 
-### 1. Enhanced File Processing
-- **Current**: PDF and CSV files only
-- **Enhanced**: XLS, XLSX, TXT, and image files (JPG, PNG, GIF)
-- **Purpose**: Support invoices, contracts, manuals, emails, transcripts, and compliance screenshots
+- Docker Engine ≥ 24
+- Docker Compose v2 (`docker compose` command)
 
-### 2. SOP Library Integration
-- **Capability**: Manage ~400 SOP documents as baseline knowledge
-- **Integration**: Cross-reference project documents with company SOPs
-- **AI Enhancement**: SOP compliance checking in AI responses
+### Steps
 
-### 3. Project-Specific AI Queries
-- **Context Selection**: Choose project context for AI queries
-- **Combined Analysis**: Project documents + SOP library
-- **Specialized Prompts**: Project-specific and SOP compliance prompts
+```bash
+# 1. Clone
+git clone <repo-url>
+cd SOP-RAG-app
 
-### 4. AI Configuration Management
-- **User Control**: View/edit AI prompts with lock/unlock functionality
-- **Model Selection**: Choose between OpenAI and OpenRouter models
-- **API Integration**: Support for both OpenAI and OpenRouter APIs
+# 2. Backend env
+cp ai-bots-admin-main/.env.example ai-bots-admin-main/.env
+# Edit ai-bots-admin-main/.env — set OPENROUTER_API_KEY and a strong JWT_SECRET
+# Leave DB_HOST=localhost; docker-compose.yml overrides it to "db" at runtime
 
-### 5. Professional UI/UX
-- **Design**: Project management-friendly interface
-- **Features**: Drag-and-drop file upload, file categorization, enhanced project management
-- **Responsive**: Works across desktop and mobile devices
+# 3. Frontend env
+cp MackFAQ-front-main/.env.example MackFAQ-front-main/.env
+# VUE_APP_API_HOST=http://localhost:3000  (leave as-is for local Docker)
+# VUE_APP_API_BOT_ID — fill in after first run (see note below)
 
-## Implementation Plan
+# 4. Start everything
+docker compose up --build
+```
 
-### Phase 1: Backend File Processing Enhancement (HIGH PRIORITY)
-1. **Expand File Type Support** - Add XLS, XLSX, TXT, image processing
-2. **Enhance File Metadata** - Add categorization and tracking fields
-3. **Test File Processing** - Verify all file types work correctly
+- Frontend: http://localhost:8080
+- Backend API: http://localhost:3000
 
-### Phase 2: SOP Library Integration (HIGH PRIORITY)
-1. **Create SOP Management System** - New module for SOP documents
-2. **Integrate SOP with AI Processing** - Combine project docs + SOPs
-3. **Test SOP Integration** - Verify SOP cross-referencing works
+> **VUE_APP_API_BOT_ID** — on first run, log in to the admin UI, create a bot, copy its UUID, paste it into `MackFAQ-front-main/.env`, then `docker compose up --build frontend`.
 
-### Phase 3: AI Configuration Management (MEDIUM PRIORITY)
-1. **Create AI Configuration System** - User-configurable AI settings
-2. **Add OpenRouter API Support** - Dual API provider support
-3. **Test AI Configuration** - Verify prompt editing and model selection
+---
 
-### Phase 4: Frontend UI/UX Enhancement (MEDIUM PRIORITY)
-1. **Implement Professional Color Scheme** - Business-friendly design
-2. **Enhanced Project Management Interface** - Comprehensive project handling
-3. **Enhanced Chat Interface** - Project context and SOP integration
+## Option B — Manual Ubuntu setup (no Docker)
 
-### Phase 5: Integration Testing and Deployment (LOW PRIORITY)
-1. **End-to-End Testing** - Complete user workflow testing
-2. **Deployment Preparation** - Environment setup and documentation
+Tested on Ubuntu 22.04 / 24.04.
 
-## Documentation Structure
+### 1. System packages
 
-The `cline_docs/` folder contains comprehensive planning documentation:
+```bash
+sudo apt update
+sudo apt install -y curl git build-essential wkhtmltopdf \
+    postgresql-16 postgresql-16-pgvector
 
-- **projectRoadmap.md** - High-level goals and completion criteria
-- **currentTask.md** - Current objectives and next steps
-- **techStack.md** - Technology decisions and architecture
-- **codebaseSummary.md** - Project structure and key components
-- **todo.md** - Detailed task breakdown with priorities
-- **requiredChanges.md** - Specific file modifications needed
-- **uiEnhancements.md** - UI/UX improvements and design system
+# Node.js 20 via NodeSource
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
+sudo apt install -y nodejs
+```
 
-## Key File Modifications Required
+### 2. PostgreSQL
 
-### Backend Changes
-1. **File Processing Service** (`ai-bots-admin-main/src/large-files-processing/large-files-processing.service.ts`)
-   - Expand supported file types
-   - Add text extraction for Excel files
-   - Add image metadata handling
+```bash
+sudo systemctl start postgresql
+sudo systemctl enable postgresql
 
-2. **Learning Session Model** (`ai-bots-admin-main/src/large-files-processing/learnings-sessions.model.ts`)
-   - Add file categorization fields
-   - Add metadata tracking
+sudo -u postgres psql <<'SQL'
+CREATE DATABASE "ai-admin";
+-- postgres superuser already exists; set password if needed:
+ALTER USER postgres WITH PASSWORD 'postgres';
+SQL
+```
 
-3. **New SOP Module** (`ai-bots-admin-main/src/sop/`)
-   - Complete new module for SOP management
-   - SOP document model and service
+> pgvector extension is created automatically by the backend on first start (`CREATE EXTENSION IF NOT EXISTS vector`).
 
-4. **AI Configuration Module** (`ai-bots-admin-main/src/ai-config/`)
-   - User-configurable AI settings
-   - Prompt editing and model selection
+### 3. Backend
 
-5. **GPT API Service** (`ai-bots-admin-main/src/gptapi/gptapi.service.ts`)
-   - Add OpenRouter API support
-   - Dual provider handling
+```bash
+cd ai-bots-admin-main
 
-### Frontend Changes
-1. **Global Styles** (`MackFAQ-front-main/src/assets/css/style.scss`)
-   - Professional color palette
-   - Modern component design system
+cp .env.example .env
+# Edit .env:
+#   DB_HOST=localhost
+#   OPENROUTER_API_KEY=<your-key>
+#   JWT_SECRET=<random-string>
 
-2. **Projects View** (`MackFAQ-front-main/src/views/Projects.vue`)
-   - Enhanced project management interface
-   - Drag-and-drop file upload
-   - AI configuration section
+npm install
+npm run build
+mkdir -p storage conversations conversations-metadata
+node dist/main
+# Backend is now running on port 3000
+```
 
-3. **Chat View** (`MackFAQ-front-main/src/views/Chat.vue`)
-   - Project context selection
-   - SOP integration toggle
+For a persistent process:
+```bash
+npm install -g pm2
+pm2 start dist/main.js --name sop-backend
+pm2 save && pm2 startup
+```
 
-## Development Guidelines
+### 4. Frontend
 
-### File Processing Priority
-- Excel files (invoices, contracts)
-- Text files (emails, transcripts)
-- Images (compliance screenshots)
+```bash
+cd ../MackFAQ-front-main
 
-### SOP Integration Strategy
-- Use existing vector database infrastructure
-- Implement SOP-specific querying logic
-- Add source attribution for SOP references
+cp .env.example .env
+# Edit .env:
+#   VUE_APP_API_HOST=http://<server-ip>:3000
+#   VUE_APP_API_BOT_ID=<bot-uuid-from-db>
 
-### UI/UX Design Principles
-- Professional business appearance
-- Intuitive project-centric workflow
-- Responsive design for all devices
+npm install
+npm run serve
+# Dev server on 0.0.0.0:8080
+```
 
-## Testing Strategy
+Open `http://<server-ip>:8080` in your browser.
 
-### File Processing Testing
-- Test all supported file types
-- Verify text extraction accuracy
-- Test file categorization logic
+---
 
-### SOP Integration Testing
-- Test with sample SOP documents
-- Verify cross-referencing functionality
-- Test AI compliance checking
+## Environment variables reference
 
-### End-to-End Testing
-- Complete user workflow testing
-- Performance testing with large files
-- Multi-user concurrent testing
+### Backend (`ai-bots-admin-main/.env`)
 
-## Deployment Requirements
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `DB_USER` | Postgres user | `postgres` |
+| `DB_PASSWORD` | Postgres password | `postgres` |
+| `DB_DATABASE` | Database name | `ai-admin` |
+| `DB_HOST` | Postgres host | `localhost` |
+| `DB_PORT` | Postgres port | `5432` |
+| `DB_DIALECT` | Always `postgres` | `postgres` |
+| `JWT_SECRET` | Secret for signing JWTs | **must change** |
+| `JWT_EXPIRY` | Token TTL | `3600s` |
+| `PUBLIC_FILES_STORAGE` | Upload storage path | `storage/` |
+| `CONVERSATIONS_FOLDER_PATH` | Conversations path | `conversations/` |
+| `CONVERSATIONS_METADATA_FOLDER_PATH` | Metadata path | `conversations-metadata/` |
+| `OPENROUTER_API_KEY` | OpenRouter API key | **required** |
+| `PORT` | Backend listen port | `3000` |
 
-### Environment Configuration
-- API keys for OpenAI and OpenRouter
-- File storage configuration
-- Database schema updates
+### Frontend (`MackFAQ-front-main/.env`)
 
-### Performance Considerations
-- Enhanced storage for SOP library
-- Optimized vector database queries
-- Efficient file processing pipeline
+| Variable | Description |
+|----------|-------------|
+| `VUE_APP_API_HOST` | Backend URL as seen **from the browser** |
+| `VUE_APP_API_BOT_ID` | UUID of the bot record in the database |
+| `VUE_APP_TITLE` | Page title |
 
-## Success Criteria
+---
 
-- ✅ All required file types supported and processed correctly
-- ✅ SOP library fully integrated with AI queries
-- ✅ Project-specific context working in chat interface
-- ✅ Professional UI matches project management standards
-- ✅ Both OpenAI and OpenRouter APIs functional
-- ✅ System deployed and accessible via Kaizen subdomain
+## Ports that must be open
 
-## Timeline
-- **Week 1-2**: Backend enhancements (file processing, SOP integration, API expansion)
-- **Week 2-3**: Frontend UI/UX improvements and AI configuration interface
-- **Week 3-4**: Testing, refinements, and deployment preparation
+| Port | Service |
+|------|---------|
+| 8080 | Vue frontend |
+| 3000 | NestJS backend |
+| 5432 | PostgreSQL (internal only — do not expose publicly) |
 
-## Budget
-- **Total**: $1000 (excluding post-development server hosting fees)
-- **Payment Structure**: 10% escrowed, 50% initialization, remaining upon completion
+---
 
-This project transforms the existing AI chatbot system into a comprehensive project management platform while preserving the core functionality and adding powerful new features for document analysis and SOP compliance.
+## Troubleshooting
+
+**HMR websocket fails / `Invalid Host header`**
+- `vue.config.js` already sets `allowedHosts: 'all'` and `webSocketURL: 'auto://...'`.
+- Ensure port 8080 is reachable from your browser.
+
+**`relation "document_chunks" does not exist`**
+- The backend runs `sequelize.sync({ alter: true })` on startup which creates all tables. Wait for the `🚀 Starting NestJS application...` log, then the DB init queries run immediately after.
+
+**`CREATE EXTENSION vector` fails**
+- Ubuntu: confirm `postgresql-16-pgvector` is installed: `dpkg -l | grep pgvector`
+- Docker: the `pgvector/pgvector:pg16` image includes the extension automatically.
+
+**`wkhtmltopdf` not found**
+- Ubuntu: `sudo apt install -y wkhtmltopdf`
+- Docker: already installed in the backend `Dockerfile`.
+
+**OpenRouter 401 / model errors**
+- Verify `OPENROUTER_API_KEY` in `ai-bots-admin-main/.env`.
+- The key must have credits for `openai/text-embedding-3-small` and `openai/gpt-4o`.
