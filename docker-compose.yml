@@ -21,12 +21,12 @@ services:
 
   backend:
     build:
-      context: ./ai-bots-admin-main
+      context: ./backend
       dockerfile: Dockerfile
     container_name: sop_rag_backend
     restart: unless-stopped
     env_file:
-      - ./ai-bots-admin-main/.env
+      - ./backend/.env
     environment:
       DB_HOST: db
       DB_PORT: 5432
@@ -42,12 +42,12 @@ services:
 
   frontend:
     build:
-      context: ./MackFAQ-front-main
+      context: ./frontend
       dockerfile: Dockerfile
     container_name: sop_rag_frontend
     restart: unless-stopped
     env_file:
-      - ./MackFAQ-front-main/.env
+      - ./frontend/.env
     ports:
       - "8080:8080"
     depends_on:

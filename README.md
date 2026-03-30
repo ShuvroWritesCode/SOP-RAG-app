@@ -149,10 +149,10 @@ git clone <repo-url>
 cd SOP-RAG-app
 
 # 2. Configure the backend
-cp ai-bots-admin-main/.env.example ai-bots-admin-main/.env
+cp backend/.env.example backend/.env
 ```
 
-Edit `ai-bots-admin-main/.env` — at minimum set:
+Edit `backend/.env` — at minimum set:
 
 ```dotenv
 OPENROUTER_API_KEY=sk-or-...        # your OpenRouter key
@@ -162,10 +162,10 @@ JWT_SECRET=a-long-random-string     # change this
 
 ```bash
 # 3. Configure the frontend
-cp MackFAQ-front-main/.env.example MackFAQ-front-main/.env
+cp frontend/.env.example frontend/.env
 ```
 
-Edit `MackFAQ-front-main/.env`:
+Edit `frontend/.env`:
 
 ```dotenv
 VUE_APP_API_HOST=http://localhost:3000   # backend URL as seen from the browser
@@ -186,7 +186,7 @@ docker compose up --build
 
 > **First-run note — VUE_APP_API_BOT_ID**
 >
-> After the stack is running, log in to the admin UI, navigate to **Bots**, and create a bot. Copy its UUID, paste it into `MackFAQ-front-main/.env` as `VUE_APP_API_BOT_ID`, then rebuild the frontend:
+> After the stack is running, log in to the admin UI, navigate to **Bots**, and create a bot. Copy its UUID, paste it into `frontend/.env` as `VUE_APP_API_BOT_ID`, then rebuild the frontend:
 >
 > ```bash
 > docker compose up --build frontend
@@ -233,7 +233,7 @@ SQL
 #### 3. Backend
 
 ```bash
-cd ai-bots-admin-main
+cd backend
 
 # Environment
 cp .env.example .env
@@ -263,7 +263,7 @@ pm2 startup   # follow the printed command to enable on boot
 #### 4. Frontend
 
 ```bash
-cd ../MackFAQ-front-main
+cd ../frontend
 
 cp .env.example .env
 nano .env
@@ -281,7 +281,7 @@ Open `http://<server-ip>:8080` in your browser.
 
 ## Configuration Reference
 
-### Backend — `ai-bots-admin-main/.env`
+### Backend — `backend/.env`
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
@@ -299,7 +299,7 @@ Open `http://<server-ip>:8080` in your browser.
 | `OPENROUTER_API_KEY` | yes | — | OpenRouter API key (get at openrouter.ai/keys) |
 | `PORT` | no | `3000` | Backend HTTP port |
 
-### Frontend — `MackFAQ-front-main/.env`
+### Frontend — `frontend/.env`
 
 | Variable | Required | Description |
 |----------|----------|-------------|
@@ -422,7 +422,7 @@ SOP-RAG-app/
 ├── docker-compose.yml
 ├── README.md
 │
-├── ai-bots-admin-main/          # NestJS backend
+├── backend/          # NestJS backend
 │   ├── Dockerfile
 │   ├── .env.example
 │   ├── src/
@@ -443,7 +443,7 @@ SOP-RAG-app/
 │   ├── conversations/           # Conversation JSON files (gitignored)
 │   └── conversations-metadata/  # Metadata (gitignored)
 │
-└── MackFAQ-front-main/          # Vue 3 frontend
+└── frontend/          # Vue 3 frontend
     ├── Dockerfile
     ├── .env.example
     ├── vue.config.js
@@ -482,7 +482,7 @@ The backend runs `sequelize.sync({ alter: true })` on startup — tables are cre
 
 **OpenRouter 401 or embedding model errors**
 
-1. Verify `OPENROUTER_API_KEY` is set in `ai-bots-admin-main/.env`.
+1. Verify `OPENROUTER_API_KEY` is set in `backend/.env`.
 2. Confirm your account has credits for `openai/text-embedding-3-small` and `openai/gpt-4o` at [openrouter.ai](https://openrouter.ai).
 
 ---
@@ -490,7 +490,7 @@ The backend runs `sequelize.sync({ alter: true })` on startup — tables are cre
 **`wkhtmltopdf: command not found`**
 
 - **Ubuntu:** `sudo apt install -y wkhtmltopdf`
-- **Docker:** Already installed in `ai-bots-admin-main/Dockerfile`.
+- **Docker:** Already installed in `backend/Dockerfile`.
 
 ---
 
