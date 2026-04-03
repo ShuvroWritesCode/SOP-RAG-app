@@ -22,14 +22,14 @@ export class UserModel extends Model<UserModel> {
 
   @Column({
     type: DataType.STRING,
-    defaultValue: null,
+    allowNull: true,
     unique: true,
   })
   username: string;
 
   @Column({
     type: DataType.STRING,
-    defaultValue: null,
+    allowNull: true,
     unique: true,
   })
   email: string;

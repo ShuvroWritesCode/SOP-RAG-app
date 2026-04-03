@@ -4,8 +4,8 @@ import { getKT } from "./store";
 import router from "./router";
 
 // Set the base URL for all axios requests
-const baseURL = process.env.VUE_APP_API_HOST || 'http://localhost:3000';
-console.log('Axios base URL:', baseURL);
+const baseURL = process.env.VUE_APP_API_HOST || '';
+console.log('Axios base URL:', baseURL || '(same origin)');
 axios.defaults.baseURL = baseURL;
 
 function reject(error) {

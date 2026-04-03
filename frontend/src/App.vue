@@ -14,8 +14,9 @@
 export default {
   computed: {
     BACKGROUND() {
-      if (this['BACKGROUND_' + this.$route?.name + '_VIDEO']) {
-        return this['BACKGROUND_' + this.$route?.name + '_VIDEO'];
+      const routeName = this.$route?.name;
+      if (routeName && this['BACKGROUND_' + routeName + '_VIDEO']) {
+        return this['BACKGROUND_' + routeName + '_VIDEO'];
       }
       return this.BACKGROUND_VIDEO;
     },

@@ -433,4 +433,17 @@ export class OpenaiKnowledgeController {
       );
     }
   }
+
+  @Get('shared-training-status/:projectId')
+  @UseGuards(JwtAuthGuard)
+  async getSharedTrainingStatus(
+    @Param('projectId') projectId: string,
+    @Req() req: Request,
+  ) {
+    const user = req.user as any;
+    return this.openaiKnowledgeService.getSharedTrainingStatus(
+      projectId,
+      user.id,
+    );
+  }
 }

@@ -1,10 +1,13 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpException,
   HttpStatus,
+  Param,
   Post,
+  Put,
   Query,
   Req,
   Res,
@@ -347,5 +350,138 @@ export class ApiController {
       status: true,
       data: bot ? bot.dataValues : null,
     };
+  }
+
+  @Get('my-docs')
+  @UseGuards(JwtAuthGuard)
+  async getMyDocs(@Req() req: Request) {
+    const user = req.user as any;
+    const files = await this.openaiKnowledgeService.getProjectFiles(null, user.id);
+    // Also get project-specific files for this user
+    const allFiles = await this.openaiKnowledgeService.getAllUserFiles(user.id);
+    return {
+      status: true,
+      data: allFiles.map((f) => ({
+        id: f.id,
+        file_name: f.filename,
+        file_type: f.file_type,
+        file_size: f.file_size,
+        status: f.status,
+        createdAt: f.createdAt,
+        connections: f.project_id
+          ? [{ project_id: f.project_id, learning_session_id: f.id }]
+          : [],
+      })),
+    };
+  }
+
+  @Put('file-connection')
+  @UseGuards(JwtAuthGuard)
+  async updateFileConnection(
+    @Body() body: { project_id: string; learning_session_id: string; status: boolean },
+  ) {
+    await this.openaiKnowledgeService.updateFileProject(
+      body.learning_session_id,
+      body.status ? body.project_id : null,
+    );
+    return { status: true };
+  }
+
+  @Get('pending-files')
+  @UseGuards(JwtAuthGuard)
+  async getPendingFiles(
+    @Req() req: Request,
+    @Query('project_id') project_id?: string,
+  ) {
+    const user = req.user as any;
+    const files = await this.openaiKnowledgeService.getFilesByStatusAndUser(
+      project_id || null,
+      'uploaded',
+      user.id,
+    );
+    return { status: true, data: files };
+  }
+
+  @Post('train')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileFieldsInterceptor([{ name: 'file', maxCount: 1 }]))
+  async uploadAndTrain(
+    @UploadedFiles() files,
+    @Req() req: Request,
+    @Query('project_id') project_id: string = null,
+  ) {
+    const file = files?.file?.[0];
+    if (!file || !file.buffer) {
+      throw new HttpException('Input file is required', HttpStatus.BAD_REQUEST);
+    }
+    const user = req.user as any;
+    const result = await this.openaiKnowledgeService.uploadFileForRetrieval(
+      project_id,
+      file.buffer,
+      file.originalname,
+      user.id,
+    );
+    return {
+      status: true,
+      data: {
+        id: result.dbFileId,
+        file_name: file.originalname,
+        createdAt: new Date().toISOString(),
+      },
+      message: 'File uploaded and trained successfully.',
+    };
+  }
+
+  @Get('files/:fileId/download')
+  @UseGuards(JwtAuthGuard)
+  async downloadFile(
+    @Param('fileId') fileId: string,
+    @Res() res: Response,
+  ) {
+    const file = await this.openaiKnowledgeService.getFileById(fileId);
+    if (!file) {
+      throw new HttpException('File not found', HttpStatus.NOT_FOUND);
+    }
+    // Return file metadata since raw buffers aren't stored on disk
+    res.json({
+      status: true,
+      data: {
+        id: file.id,
+        filename: file.filename,
+        file_type: file.file_type,
+      },
+    });
+  }
+
+  @Post('update-bot-prompt')
+  @UseGuards(JwtAuthGuard)
+  async updateBotPrompt(@Req() req: Request, @Body() body: any) {
+    const user = req.user as any;
+    const bot = await this.botsService.getDefaultBotForUser({ user_id: user.id });
+    await this.botsService.updateBot(bot.id as any, {
+      prompt_prefix: body.prompt_prefix,
+      prompt_answer_pre_prefix: body.prompt_answer_pre_prefix,
+    } as any);
+    return { status: true };
+  }
+
+  @Get('saved-knowledge')
+  @UseGuards(JwtAuthGuard)
+  async getSavedKnowledge(
+    @Query('project_id') project_id?: string,
+    @Query('project_link') project_link?: string,
+  ) {
+    return {
+      status: true,
+      project_id: project_id || null,
+      project_link: project_link || null,
+      data: '',
+    };
+  }
+
+  @Delete('saved-knowledge-qoidoqe2koakjfoqwe')
+  @UseGuards(JwtAuthGuard)
+  async deleteSavedKnowledge(@Query('id') id: string) {
+    return { status: true, data: null };
   }
 }

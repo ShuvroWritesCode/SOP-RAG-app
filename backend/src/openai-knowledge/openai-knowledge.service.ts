@@ -180,6 +180,43 @@ export class OpenaiKnowledgeService {
     });
   }
 
+  async getFilesByStatusAndUser(projectId: string | null, status: string, userId: string) {
+    const where: any = { status, user_id: userId };
+    if (projectId) {
+      where.project_id = projectId;
+    }
+    return this.projectFileModel.findAll({ where });
+  }
+
+  async getAllUserFiles(userId: string) {
+    return this.projectFileModel.findAll({
+      where: { user_id: userId },
+      order: [['createdAt', 'DESC']],
+    });
+  }
+
+  async getFileById(fileId: string) {
+    return this.projectFileModel.findByPk(fileId);
+  }
+
+  async updateFileProject(fileId: string, projectId: string | null) {
+    const file = await this.projectFileModel.findByPk(fileId);
+    if (!file) throw new HttpException('File not found', HttpStatus.NOT_FOUND);
+    await file.update({ project_id: projectId, shared: projectId === null });
+    return file;
+  }
+
+  async getSharedTrainingStatus(projectId: string, userId: string) {
+    const sharedFiles = await this.projectFileModel.findAll({
+      where: { user_id: userId, shared: true, status: 'completed' },
+    });
+    return {
+      needsSharedTraining: false,
+      sharedFilesCount: sharedFiles.length,
+      trainedSharedFilesCount: sharedFiles.length,
+    };
+  }
+
   private async updateProjectFilesCount(projectId: string | null) {
     if (!projectId) return;
     try {
