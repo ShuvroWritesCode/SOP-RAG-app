@@ -479,6 +479,17 @@ export class ApiController {
     };
   }
 
+  @Delete('train')
+  @UseGuards(JwtAuthGuard)
+  async clearTrainingData(
+    @Req() req: Request,
+    @Query('project_id') project_id?: string,
+  ) {
+    const user = req.user as any;
+    await this.ragService.deleteChunksForProject(project_id || null, user.id);
+    return { status: true };
+  }
+
   @Delete('saved-knowledge-qoidoqe2koakjfoqwe')
   @UseGuards(JwtAuthGuard)
   async deleteSavedKnowledge(@Query('id') id: string) {

@@ -11,6 +11,7 @@ import { OpenaiKnowledgeModule } from './openai-knowledge/openai-knowledge.modul
 import { ConversationsModule } from './conversations/conversations.module';
 import { IdentityModule } from './identity/identity.module';
 import { BotsModule } from './bots/bots.module';
+import { AiModelsModule } from './ai-models/ai-models.module';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { BotsModule } from './bots/bots.module';
     OpenaiKnowledgeModule,
     ConversationsModule,
     IdentityModule,
+    AiModelsModule,
   ],
 })
 export class AppModule {}

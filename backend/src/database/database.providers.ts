@@ -35,6 +35,21 @@ export const databaseProviders = [
         console.log('Seeded default admin user (admin / admin)');
       }
 
+      // Seed default AI models if none exist
+      const [modelRows] = await sequelize.query(
+        `SELECT count(*)::int as cnt FROM ai_models`,
+      );
+      if ((modelRows as any)[0].cnt === 0) {
+        await sequelize.query(
+          `INSERT INTO ai_models (id, model_id, display_name, is_active, "createdAt", "updatedAt") VALUES
+           (gen_random_uuid(), 'openai/gpt-5.1-chat', 'GPT-5.1 Chat', false, NOW(), NOW()),
+           (gen_random_uuid(), 'openai/gpt-5-nano', 'GPT-5 Nano', false, NOW(), NOW()),
+           (gen_random_uuid(), 'openai/gpt-4.1', 'GPT-4.1', true, NOW(), NOW()),
+           (gen_random_uuid(), 'openai/gpt-4.1-mini', 'GPT-4.1 Mini', false, NOW(), NOW())`,
+        );
+        console.log('Seeded default AI models (GPT-4.1 active)');
+      }
+
       return sequelize;
     },
   },

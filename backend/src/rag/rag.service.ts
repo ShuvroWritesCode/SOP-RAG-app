@@ -4,12 +4,16 @@ import { Response } from 'express';
 import OpenAI from 'openai';
 import * as pdfParse from 'pdf-parse';
 import * as mammoth from 'mammoth';
+import { AiModelsService } from 'src/ai-models/ai-models.service';
 
 @Injectable()
 export class RagService {
   private readonly openai: OpenAI;
 
-  constructor(@Inject('SEQUELIZE') private readonly sequelize: Sequelize) {
+  constructor(
+    @Inject('SEQUELIZE') private readonly sequelize: Sequelize,
+    private readonly aiModelsService: AiModelsService,
+  ) {
     this.openai = new OpenAI({
       baseURL: 'https://openrouter.ai/api/v1',
       apiKey: process.env.OPENROUTER_API_KEY,
@@ -82,6 +86,23 @@ export class RagService {
     );
   }
 
+  async deleteChunksForProject(
+    projectId: string | null,
+    userId: string,
+  ): Promise<void> {
+    if (projectId) {
+      await this.sequelize.query(
+        'DELETE FROM document_chunks WHERE project_id = $1 AND user_id = $2',
+        { bind: [projectId, userId] },
+      );
+    } else {
+      await this.sequelize.query(
+        'DELETE FROM document_chunks WHERE project_id IS NULL AND user_id = $1',
+        { bind: [userId] },
+      );
+    }
+  }
+
   async retrieveChunks(
     query: string,
     projectId: string | null,
@@ -147,8 +168,10 @@ export class RagService {
       { role: 'user', content: userMessage },
     ];
 
+    const activeModel = await this.aiModelsService.getActiveModel();
+
     const stream = await this.openai.chat.completions.create({
-      model: 'openai/gpt-4o',
+      model: activeModel,
       messages,
       stream: true,
     });

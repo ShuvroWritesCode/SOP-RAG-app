@@ -30,9 +30,9 @@
 					<div class="control-group">
 						<label class="control-label">AI Model</label>
 						<select v-model="selectedModel" @change="updateModelSetting" class="context-select">
-							<option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
-							<option value="gpt-4">GPT-4</option>
-							<option value="anthropic/claude-3">Claude 3</option>
+							<option v-for="model in aiModels" :key="model.id" :value="model.id">
+								{{ model.display_name }}
+							</option>
 						</select>
 					</div>
 				</div>
@@ -200,7 +200,8 @@ export default {
 			projectFiles: [],
 			selectedProject: "",
 			includeSOP: true,
-			selectedModel: "gpt-3.5-turbo",
+			selectedModel: null,
+			aiModels: [],
 			selectedFiles: [],
 			showFileModal: false,
 			isLoading: false,
@@ -214,6 +215,7 @@ export default {
 	},
 	async mounted() {
 		await this.loadProjects();
+		await this.loadAiModels();
 		this.autoResizeTextarea();
 
 		// Handle initial route - check if we have a conversationId from route
@@ -375,7 +377,29 @@ export default {
 			}
 		},
 		updateSOPSetting() { },
-		updateModelSetting() { },
+		async loadAiModels() {
+			try {
+				const response = await axios.get('/ai-models');
+				if (response.data.status) {
+					this.aiModels = response.data.data;
+					const active = this.aiModels.find(m => m.is_active);
+					if (active) {
+						this.selectedModel = active.id;
+					}
+				}
+			} catch (error) {
+				console.error('Failed to load AI models:', error);
+			}
+		},
+		async updateModelSetting() {
+			if (!this.selectedModel) return;
+			try {
+				await axios.put(`/ai-models/${this.selectedModel}/activate`);
+			} catch (error) {
+				console.error('Failed to update model:', error);
+				await this.loadAiModels();
+			}
+		},
 		getInputPlaceholder() {
 			if (this.selectedProject && this.includeSOP) {
 				return "Ask about your project documents with SOP compliance...";
