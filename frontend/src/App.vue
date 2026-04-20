@@ -7,6 +7,9 @@
       <img v-else :src="`/${BACKGROUND}`" id="backgroundVideo" />
     </template>
     <router-view v-if="loaded" />
+    <footer class="global-footer" v-if="loaded">
+      © 2026 | Developed and maintained by Kaizen Apps
+    </footer>
   </div>
 </template>
 
@@ -99,6 +102,8 @@ export default {
   min-height: 100vh;
   position: relative;
   background-color: #0f172a;
+  display: flex;
+  flex-direction: column;
 }
 
 #backgroundVideo {
@@ -109,6 +114,16 @@ export default {
   min-height: 100%;
   z-index: -1;
   object-fit: cover;
+}
+
+.global-footer {
+  margin-top: auto;
+  text-align: center;
+  padding: 14px 12px;
+  color: #ffffff;
+  background: rgba(15, 23, 42, 0.9);
+  border-top: 1px solid #334155;
+  font-size: 0.9rem;
 }
 
 /* Modern scrollbar */
