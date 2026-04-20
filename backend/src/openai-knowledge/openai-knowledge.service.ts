@@ -138,13 +138,19 @@ export class OpenaiKnowledgeService {
 
   async deleteFile(projectId: string | null, fileId: string, userId?: string) {
     try {
+      if (!fileId || fileId === 'undefined') {
+        throw new HttpException('File id is required', HttpStatus.BAD_REQUEST);
+      }
+
       const dbFile = await this.projectFileModel.findOne({
         where: {
           id: fileId,
           ...(userId ? { user_id: userId } : {}),
         },
       });
-      if (!dbFile) throw new Error('File not found');
+      if (!dbFile) {
+        throw new HttpException('File not found', HttpStatus.NOT_FOUND);
+      }
 
       await this.ragService.deleteChunksForFile(fileId);
       await dbFile.destroy();
@@ -152,6 +158,9 @@ export class OpenaiKnowledgeService {
       if (projectId) await this.updateProjectFilesCount(projectId);
       return { success: true };
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       this.logger.error('Error deleting file:', error);
       throw new HttpException('Failed to delete file', HttpStatus.INTERNAL_SERVER_ERROR);
     }

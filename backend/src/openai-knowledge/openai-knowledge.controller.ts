@@ -157,6 +157,9 @@ export class OpenaiKnowledgeController {
 
       return { success: result.success, message: 'File deleted successfully' };
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new HttpException(
         error.message || 'Failed to delete file',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -320,6 +323,9 @@ export class OpenaiKnowledgeController {
 
       return { success: result.success, message: 'File deleted successfully' };
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       throw new HttpException(
         error.message || 'Failed to delete file',
         HttpStatus.INTERNAL_SERVER_ERROR,

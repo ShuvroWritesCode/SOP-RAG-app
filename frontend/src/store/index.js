@@ -625,6 +625,9 @@ export default createStore({
 
     async deleteOpenAIFile(context, { projectId, fileId }) {
       try {
+        if (!projectId || !fileId || fileId === 'undefined') {
+          throw new Error('Missing project/file id for delete');
+        }
         const response = await axiosConfigured.delete(API_URL + `/openai-knowledge/file/${projectId}/${fileId}`);
         return response.data;
       } catch (error) {
@@ -710,6 +713,9 @@ export default createStore({
 
     async deleteGeneralFile(context, { fileId }) {
       try {
+        if (!fileId || fileId === 'undefined') {
+          throw new Error('Missing file id for delete');
+        }
         const response = await axiosConfigured.delete(
           API_URL + `/openai-knowledge/file/general/${fileId}`
         );

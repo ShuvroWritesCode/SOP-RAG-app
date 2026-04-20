@@ -451,6 +451,18 @@ export default {
     projects() {
       return this.$store.getters.getAvailableProjects;
     },
+    selectedProjectId() {
+      if (
+        this.project_id === null ||
+        this.project_id === undefined ||
+        this.project_id === '' ||
+        this.project_id === 0 ||
+        this.project_id === '0'
+      ) {
+        return null;
+      }
+      return this.project_id;
+    },
     //     getMyDocsList: state => state.myDocsList,
     // getDocsConnectedToProject: state => project_id => state.myDocsListByProject[project_id] ?? [],
   },
@@ -514,10 +526,10 @@ export default {
     async loadProjectFiles() {
       try {
         let files;
-        if (this.project_id && this.project) {
+        if (this.selectedProjectId) {
           // Load files from specific project
           files = await this.$store.dispatch('loadOpenAIKnowledgeFiles', {
-            projectId: this.project.id
+            projectId: this.selectedProjectId
           });
         } else {
           // Load general files (no project selected)
@@ -532,7 +544,7 @@ export default {
           file_type: file.file_type,
           file_size: file.file_size,
           status: file.status,
-          openai_file_id: file.openai_file_id,
+          openai_file_id: file.openai_file_id || file.id,
           createdAt: file.createdAt,
           updatedAt: file.updatedAt
         }));
@@ -887,11 +899,6 @@ export default {
       });
     },
     async deleteUploadedKnowledge(id) {
-      if (!this.project_id) {
-        this.$toast.error(`Please select Project`, { position: "top" });
-        return;
-      }
-
       this.showConfirmModal({
         type: 'delete',
         title: 'Delete File',
@@ -899,15 +906,20 @@ export default {
         confirmText: 'Delete',
         loadingText: 'Deleting...',
         action: async () => {
-          const result = await this.$store.dispatch("deleteProjectSavedKnowledge", {
-            project_id: this.project_id,
-            id,
-          });
+          const result = this.selectedProjectId
+            ? await this.$store.dispatch('deleteOpenAIFile', {
+              projectId: this.selectedProjectId,
+              fileId: id,
+            })
+            : await this.$store.dispatch('deleteGeneralFile', {
+              fileId: id,
+            });
 
           if (!result) {
             this.$toast.error("File is not found");
           } else {
             this.$toast.success("Deleted");
+            await this.loadProjectFiles();
           }
         }
       });
@@ -1047,16 +1059,21 @@ export default {
     async deleteFile(file) {
       if (confirm(`Are you sure you want to delete "${file.original_name}"?`)) {
         try {
-          if (this.project_id && this.project) {
+          const effectiveFileId = file.openai_file_id || file.id;
+          if (!effectiveFileId) {
+            throw new Error('Missing file id');
+          }
+
+          if (this.selectedProjectId) {
             // Delete project-specific file
             await this.$store.dispatch('deleteOpenAIFile', {
-              projectId: this.project.id,
-              fileId: file.openai_file_id
+              projectId: this.selectedProjectId,
+              fileId: effectiveFileId
             });
           } else {
             // Delete general file
             await this.$store.dispatch('deleteGeneralFile', {
-              fileId: file.openai_file_id
+              fileId: effectiveFileId
             });
           }
           this.$toast.success("File deleted successfully");
