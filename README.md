@@ -1,6 +1,35 @@
-# SOP RAG App
+# SOP RAG App (Private RAG)
 
 > An enterprise-grade **Retrieval-Augmented Generation** platform for Standard Operating Procedures. Upload documents, train a knowledge base, and chat with your SOPs using state-of-the-art AI — all self-hosted.
+
+---
+
+## What Changed in This Release
+
+- Branding update in UI/docs: app title and tab title are now **Private RAG**.
+- Legacy endpoint cleanup:
+  - Removed legacy `/conversations/*` controller surface.
+  - Removed legacy `/users/registration` usage in frontend.
+  - Removed legacy rendered `GET /auth/login` page endpoint.
+  - Canonical conversation actions now use `/api/rename-conversation` and `/api/delete-conversation`.
+- CORS hardening:
+  - Backend now uses explicit origin handling with allowlist defaults.
+  - Added env-based CORS controls: `CORS_ORIGINS`, `CORS_ALLOW_PRIVATE_IP`.
+  - Supports localhost, private server IP access, and `sopai.kaizenapps.com`.
+- Frontend reliability fixes:
+  - Fixed document delete flow when project is selected but project object is not yet hydrated.
+  - Fixed `undefined` file ID delete bug (`/openai-knowledge/file/general/undefined`).
+  - Added guardrails for delete actions in store.
+- Error handling improvements:
+  - File-delete endpoints now return proper `400/404` for bad/missing IDs instead of generic `500`.
+  - Unauthorized filter returns JSON response rather than redirecting to a login page.
+- UI updates:
+  - Global footer added: `© 2026 | Developed and maintained by Kaizen Apps` (with external link).
+  - Dark-theme readability improved by lightening global text token mappings.
+- Build/config improvements:
+  - Added Vue compile-time feature flags in `vue.config.js` to remove esm-bundler feature-flag warning.
+- Docs refresh:
+  - README updated for current model defaults, API routes, env variables, and deployment behavior.
 
 ---
 
@@ -9,6 +38,7 @@
 - [Overview](#overview)
 - [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
+- [Supported Models](#supported-models-seeded-defaults)
 - [Prerequisites](#prerequisites)
 - [Getting Started](#getting-started)
   - [Option A — Docker Compose](#option-a--docker-compose-recommended)
@@ -24,7 +54,7 @@
 
 ## Overview
 
-SOP RAG App lets teams upload documents (PDF, DOCX, TXT, CSV) and immediately query them through a conversational AI interface. Documents are chunked, embedded via OpenRouter, and stored as vectors in PostgreSQL using the `pgvector` extension. At query time the system retrieves the most semantically relevant chunks and feeds them as context to an LLM — grounding every answer in your actual documents.
+SOP RAG App (branded in UI as **Private RAG**) lets teams upload documents (PDF, DOCX, TXT, CSV) and query them through a conversational AI interface. Documents are chunked, embedded via OpenRouter, and stored as vectors in PostgreSQL using `pgvector`. At query time, the system retrieves the most semantically relevant chunks and feeds them as context to an LLM — grounding answers in your own documents.
 
 **Key capabilities**
 
@@ -62,7 +92,7 @@ SOP RAG App lets teams upload documents (PDF, DOCX, TXT, CSV) and immediately qu
                                ┌──────────────▼──────────────┐
                                │  OpenRouter API              │
                                │  text-embedding-3-small      │
-                               │  gpt-4o (streaming)          │
+                               │  active chat model (stream)   │
                                └─────────────────────────────┘
 ```
 
@@ -73,7 +103,7 @@ Upload → Extract text → Chunk (500 words, 50 overlap)
       → Embed (text-embedding-3-small) → Store vector(1536) in pgvector
 
 Query  → Embed query → ivfflat cosine search (top-5 chunks)
-      → Build context prompt → Stream gpt-4o response via SSE
+      → Build context prompt → Stream active model response via SSE
 ```
 
 ---
@@ -118,6 +148,15 @@ Query  → Embed query → ivfflat cosine search (top-5 chunks)
 | Database image | `pgvector/pgvector:pg16` |
 | Process manager (optional) | PM2 |
 
+### Supported Models (Seeded Defaults)
+
+- Embeddings: `openai/text-embedding-3-small`
+- Chat models:
+  - `openai/gpt-4.1` (default active)
+  - `openai/gpt-4.1-mini`
+  - `openai/gpt-5.1-chat`
+  - `openai/gpt-5-nano`
+
 ---
 
 ## Prerequisites
@@ -135,7 +174,7 @@ Query  → Embed query → ivfflat cosine search (top-5 chunks)
 **Both paths**
 - An [OpenRouter](https://openrouter.ai) API key with credits for:
   - `openai/text-embedding-3-small`
-  - `openai/gpt-4o`
+  - one or more chat models (default seeded active model: `openai/gpt-4.1`)
 
 ---
 
@@ -169,8 +208,9 @@ Edit `frontend/.env`:
 
 ```dotenv
 VUE_APP_API_HOST=http://localhost:3000   # backend URL as seen from the browser
+# or leave empty for same-origin setup behind reverse proxy
 VUE_APP_API_BOT_ID=                      # leave blank for now (see note below)
-VUE_APP_TITLE=SOP RAG App
+VUE_APP_TITLE=Private RAG
 ```
 
 ```bash
@@ -291,19 +331,30 @@ Open `http://<server-ip>:8080` in your browser.
 | `DB_HOST` | yes | `localhost` | DB host (`db` when using Docker Compose) |
 | `DB_PORT` | yes | `5432` | DB port |
 | `DB_DIALECT` | yes | `postgres` | Always `postgres` |
+| `DB_SYNC_ALTER` | no | `false` | Enable schema alter on boot (`true` only for controlled changes) |
 | `JWT_SECRET` | yes | — | Secret for signing JWT tokens — **must be changed** |
 | `JWT_EXPIRY` | no | `3600s` | JWT token TTL |
+| `SEED_DEFAULT_ADMIN` | no | `false` | Seed default admin user (keep disabled in production) |
 | `PUBLIC_FILES_STORAGE` | yes | `storage/` | Path for uploaded file storage |
 | `CONVERSATIONS_FOLDER_PATH` | yes | `conversations/` | Path for conversation JSON files |
 | `CONVERSATIONS_METADATA_FOLDER_PATH` | yes | `conversations-metadata/` | Path for conversation metadata |
 | `OPENROUTER_API_KEY` | yes | — | OpenRouter API key (get at openrouter.ai/keys) |
+| `CORS_ORIGINS` | no | empty | Comma-separated extra allowed origins |
+| `CORS_ALLOW_PRIVATE_IP` | no | `true` | Allow private IP browser origins (e.g. `192.168.x.x`) |
 | `PORT` | no | `3000` | Backend HTTP port |
+
+Example:
+
+```dotenv
+CORS_ORIGINS=http://localhost:8080,http://192.168.12.121:8080,https://sopai.kaizenapps.com
+CORS_ALLOW_PRIVATE_IP=true
+```
 
 ### Frontend — `frontend/.env`
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `VUE_APP_API_HOST` | yes | Backend URL **as seen from the browser** (e.g. `http://192.168.1.10:3000`) |
+| `VUE_APP_API_HOST` | no | Backend URL **as seen from the browser** (e.g. `http://192.168.1.10:3000`), or empty for same-origin reverse proxy |
 | `VUE_APP_API_BOT_ID` | yes | UUID of the bot record — create via admin UI after first run |
 | `VUE_APP_TITLE` | no | Browser tab / page title |
 | `VUE_APP_FAVICON` | no | Path to favicon file |
@@ -321,19 +372,26 @@ All endpoints are served by the NestJS backend at port `3000`. JWT Bearer token 
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| `POST` | `/auth/login` | Public | Login, returns JWT |
 | `POST` | `/auth/register` | Public | Register new user |
+| `POST` | `/auth/login` | Public | Login, returns JWT |
+| `POST` | `/auth/refresh` | Public | Refresh access token |
+| `GET` | `/auth/profile` | JWT | Get authenticated user profile |
+| `POST` | `/auth/logout` | JWT | Logout endpoint |
 
 ### Chat / RAG — `/api`
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| `GET` | `/api/complete` | Bot key | Stream SSE tokens for a prompt (RAG) |
-| `GET` | `/api/conversation-history` | Public | Get messages for a conversation |
+| `GET` | `/api/complete` | Authed-with-bot | Stream SSE tokens for a prompt (RAG) |
+| `GET` | `/api/conversation-history` | Public | Get messages for one conversation |
+| `GET` | `/api/conversations-history` | Public | Get messages for multiple conversations |
 | `GET` | `/api/list-of-conversations` | JWT | List all conversations |
+| `PUT` | `/api/rename-conversation` | JWT | Rename conversation |
+| `DELETE` | `/api/delete-conversation` | JWT | Delete conversation |
 | `POST` | `/api/upload-file` | JWT | Upload file and ingest into vector store |
 | `POST` | `/api/train-files` | JWT | Trigger embedding for uploaded files |
-| `POST` | `/api/clear-memory` | Public | Delete a conversation |
+| `POST` | `/api/clear-memory` | Public | Clear/delete a conversation by ID |
+| `GET` | `/api/my-docs` | JWT | List authenticated user files |
 | `GET` | `/api/bot-prompt` | JWT | Get bot configuration |
 
 ### Knowledge Base — `/openai-knowledge`
@@ -342,34 +400,39 @@ All endpoints are served by the NestJS backend at port `3000`. JWT Bearer token 
 |--------|------|------|-------------|
 | `POST` | `/openai-knowledge/upload/:projectId` | JWT | Upload file to project knowledge base |
 | `POST` | `/openai-knowledge/upload/general` | JWT | Upload file to global knowledge base |
-| `GET` | `/openai-knowledge/files/:projectId` | Public | List files for a project |
+| `GET` | `/openai-knowledge/files/:projectId` | JWT | List files for a project |
+| `GET` | `/openai-knowledge/files/general` | JWT | List general files |
 | `POST` | `/openai-knowledge/train/:projectId` | JWT | Embed all uploaded files for a project |
-| `DELETE` | `/openai-knowledge/file/:projectId/:fileId` | Public | Delete a file |
-| `POST` | `/openai-knowledge/retry-train/:projectId` | Public | Retry failed embeddings |
+| `POST` | `/openai-knowledge/train/general` | JWT | Train general files |
+| `DELETE` | `/openai-knowledge/file/:projectId/:fileId` | JWT | Delete project file |
+| `DELETE` | `/openai-knowledge/file/general/:fileId` | JWT | Delete general file |
+| `POST` | `/openai-knowledge/retry-train/:projectId` | JWT | Retry failed project files |
+| `POST` | `/openai-knowledge/retry-train/general` | JWT | Retry failed general files |
 
-### Projects — `/projects`
+### Projects — `/projects/management`
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| `GET` | `/projects` | JWT | List all projects for user |
-| `POST` | `/projects` | JWT | Create project |
-| `PUT` | `/projects/:id` | JWT | Update project |
-| `DELETE` | `/projects/:id` | JWT | Delete project |
+| `GET` | `/projects/management` | JWT | List user projects |
+| `POST` | `/projects/management/create` | JWT | Create project |
+| `POST` | `/projects/management/update` | JWT | Update project |
+| `POST` | `/projects/management/delete` | JWT | Delete project |
+| `GET` | `/projects/management/knowledge-base` | JWT | Get compiled project/general knowledge |
 
 ### Bots — `/bots`
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| `GET` | `/bots` | JWT | List bots |
-| `POST` | `/bots` | JWT | Create bot |
-| `PUT` | `/bots/:id` | JWT | Update bot configuration |
-| `DELETE` | `/bots/:id` | JWT | Delete bot |
+| `GET` | `/bots/list` | JWT | List bots |
+| `POST` | `/bots/create` | JWT | Create bot |
+| `POST` | `/bots/update` | JWT | Update bot configuration |
+| `POST` | `/bots/delete` | JWT | Delete bot |
 
 ---
 
 ## Database Schema
 
-All tables are auto-created via `sequelize.sync({ alter: true })` on startup. The `vector` column is added via raw SQL post-sync.
+Tables are auto-created via `sequelize.sync()` on startup. Schema alter behavior is controlled by `DB_SYNC_ALTER` (default `false`). The `vector` column is added via raw SQL post-sync.
 
 ```
 users
@@ -410,7 +473,12 @@ document_chunks
 ├── chunk_index  INTEGER
 └── embedding    vector(1536)  ← pgvector column, ivfflat cosine index
 
-conversations  (JSON file-backed via filesystem)
+conversations
+├── id            UUID PK
+├── user_id       UUID → users
+├── project_id    UUID (nullable)
+├── name          STRING
+└── messages      relation via `messages` table
 ```
 
 ---
@@ -431,7 +499,7 @@ SOP-RAG-app/
 │   │   ├── api/                 # Chat / streaming / file upload
 │   │   ├── auth/                # JWT + Passport
 │   │   ├── bots/                # Bot CRUD
-│   │   ├── conversations/       # Conversation persistence
+│   │   ├── conversations/       # Conversation service + models
 │   │   ├── database/            # Sequelize setup + pgvector init
 │   │   ├── identity/            # User identity helpers
 │   │   ├── messages/            # Message models
@@ -440,8 +508,8 @@ SOP-RAG-app/
 │   │   ├── rag/                 # Embedding, chunking, vector search, streaming
 │   │   └── users/               # User CRUD
 │   ├── storage/                 # Uploaded file storage (gitignored)
-│   ├── conversations/           # Conversation JSON files (gitignored)
-│   └── conversations-metadata/  # Metadata (gitignored)
+│   ├── conversations/           # Legacy runtime directory (if enabled)
+│   └── conversations-metadata/  # Legacy runtime metadata directory
 │
 └── frontend/          # Vue 3 frontend
     ├── Dockerfile
@@ -476,14 +544,14 @@ The pgvector extension is not installed in your Postgres instance.
 
 **`ERROR: relation "document_chunks" does not exist`**
 
-The backend runs `sequelize.sync({ alter: true })` on startup — tables are created in order. This error should not persist past the first successful boot. If it does, check that Postgres is healthy before the backend starts (`depends_on: db: condition: service_healthy` handles this in Docker Compose).
+The backend runs `sequelize.sync()` on startup (with optional alter controlled by `DB_SYNC_ALTER`) — tables are created in order. This error should not persist past the first successful boot. If it does, check that Postgres is healthy before the backend starts (`depends_on: db: condition: service_healthy` handles this in Docker Compose).
 
 ---
 
 **OpenRouter 401 or embedding model errors**
 
 1. Verify `OPENROUTER_API_KEY` is set in `backend/.env`.
-2. Confirm your account has credits for `openai/text-embedding-3-small` and `openai/gpt-4o` at [openrouter.ai](https://openrouter.ai).
+2. Confirm your account has credits for `openai/text-embedding-3-small` and your selected chat model (default seeded active: `openai/gpt-4.1`) at [openrouter.ai](https://openrouter.ai).
 
 ---
 
@@ -496,7 +564,7 @@ The backend runs `sequelize.sync({ alter: true })` on startup — tables are cre
 
 **Frontend can't reach the backend**
 
-`VUE_APP_API_HOST` is baked into the Vue build at **compile time** (webpack env injection). It must be the URL your **browser** can reach — not an internal Docker hostname like `backend`. For a remote server use `http://<public-ip>:3000`. After changing `.env`, rebuild the frontend container.
+`VUE_APP_API_HOST` is baked into the Vue build at **compile time** (webpack env injection). It must be the URL your **browser** can reach — not an internal Docker hostname like `backend`. For a remote server use `http://<public-ip>:3000`, or leave it empty when frontend and backend are served from the same domain via reverse proxy. After changing `.env`, rebuild the frontend container.
 
 ---
 
