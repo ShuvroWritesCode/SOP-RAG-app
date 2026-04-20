@@ -12,6 +12,7 @@
 
 :root {
 	--font: 'Inter', sans-serif;
+	color-scheme: dark;
 
 	/* Legacy colors (for backward compatibility) */
 	--colAkcent: #2563eb;
@@ -27,12 +28,12 @@
 	--gray-100: #1e293b;
 	--gray-200: #334155;
 	--gray-300: #475569;
-	--gray-400: #64748b;
-	--gray-500: #94a3b8;
-	--gray-600: #cbd5e1;
-	--gray-700: #e2e8f0;
-	--gray-800: #f1f5f9;
-	--gray-900: #f8fafc;
+	--gray-400: #94a3b8;
+	--gray-500: #cbd5e1;
+	--gray-600: #e2e8f0;
+	--gray-700: #f1f5f9;
+	--gray-800: #f8fafc;
+	--gray-900: #ffffff;
 
 	/* Accent Colors */
 	--success-green: #22c55e;
@@ -68,6 +69,13 @@ body {
 	line-height: 1.4;
 	color: #e2e8f0;
 	background-color: #0f172a;
+}
+
+/* Keep normal text readable on dark surfaces by default */
+h1, h2, h3, h4, h5, h6,
+p, span, label, small, li,
+td, th, div, a {
+	color: inherit;
 }
 
 a {
