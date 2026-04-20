@@ -4,7 +4,7 @@
     <header class="top-header">
       <div class="header-content">
         <div class="header-left">
-          <h1 class="app-title">Private AI</h1>
+          <h1 class="app-title">Private RAG</h1>
           <span class="app-subtitle">AI-Powered Document Assistant</span>
         </div>
 

@@ -1,6 +1,6 @@
 <template>
     <div>
-        <h3>Sign Up / Log In to Private AI</h3>
+        <h3>Sign Up / Log In to Private RAG</h3>
         <form @submit.prevent="registration">
             <div class="field">
                 <input type="text" placeholder="Email" id="email" v-model.trim="form.email">
