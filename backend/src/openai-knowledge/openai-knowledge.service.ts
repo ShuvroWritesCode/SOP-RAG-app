@@ -94,13 +94,16 @@ export class OpenaiKnowledgeService {
       const files = await this.projectFileModel.findAll({ where });
       let trainedCount = 0;
       let failedCount = 0;
+      let skippedCount = 0;
 
       for (const file of files) {
         try {
-          await file.update({ status: 'processing' });
-          // Files stored on disk are unavailable here — skip re-ingestion
-          // (uploadFileForRetrieval ingests immediately on upload now)
-          await file.update({ status: 'completed' });
+          // Ingestion happens at upload-time. Keep status unchanged here to avoid
+          // false "completed" transitions when source buffer is unavailable.
+          if (file.status === 'uploaded') {
+            skippedCount++;
+            continue;
+          }
           trainedCount++;
         } catch (err) {
           await file.update({ status: 'failed' });
@@ -109,7 +112,13 @@ export class OpenaiKnowledgeService {
       }
 
       if (projectId) await this.updateProjectFilesCount(projectId);
-      return { success: true, message: `Trained ${trainedCount} files`, trainedCount, failedCount };
+      return {
+        success: true,
+        message: `Trained ${trainedCount} files`,
+        trainedCount,
+        failedCount,
+        skippedCount,
+      };
     } catch (error) {
       throw new HttpException('Failed to train files', HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -119,6 +128,7 @@ export class OpenaiKnowledgeService {
     const where: any = {};
     if (projectId) {
       where.project_id = projectId;
+      if (userId) where.user_id = userId;
     } else {
       where.user_id = userId;
       where.project_id = null;
@@ -126,9 +136,14 @@ export class OpenaiKnowledgeService {
     return this.projectFileModel.findAll({ where });
   }
 
-  async deleteFile(projectId: string | null, fileId: string, _userId?: string) {
+  async deleteFile(projectId: string | null, fileId: string, userId?: string) {
     try {
-      const dbFile = await this.projectFileModel.findByPk(fileId);
+      const dbFile = await this.projectFileModel.findOne({
+        where: {
+          id: fileId,
+          ...(userId ? { user_id: userId } : {}),
+        },
+      });
       if (!dbFile) throw new Error('File not found');
 
       await this.ragService.deleteChunksForFile(fileId);
@@ -174,9 +189,13 @@ export class OpenaiKnowledgeService {
     return { success: true };
   }
 
-  async getFilesByStatus(projectId: string, status: string) {
+  async getFilesByStatus(projectId: string, status: string, userId?: string) {
     return this.projectFileModel.findAll({
-      where: { project_id: projectId, status },
+      where: {
+        project_id: projectId,
+        status,
+        ...(userId ? { user_id: userId } : {}),
+      },
     });
   }
 
@@ -195,12 +214,22 @@ export class OpenaiKnowledgeService {
     });
   }
 
-  async getFileById(fileId: string) {
-    return this.projectFileModel.findByPk(fileId);
+  async getFileById(fileId: string, userId?: string) {
+    return this.projectFileModel.findOne({
+      where: {
+        id: fileId,
+        ...(userId ? { user_id: userId } : {}),
+      },
+    });
   }
 
-  async updateFileProject(fileId: string, projectId: string | null) {
-    const file = await this.projectFileModel.findByPk(fileId);
+  async updateFileProject(fileId: string, projectId: string | null, userId?: string) {
+    const file = await this.projectFileModel.findOne({
+      where: {
+        id: fileId,
+        ...(userId ? { user_id: userId } : {}),
+      },
+    });
     if (!file) throw new HttpException('File not found', HttpStatus.NOT_FOUND);
     await file.update({ project_id: projectId, shared: projectId === null });
     return file;
@@ -215,6 +244,45 @@ export class OpenaiKnowledgeService {
       sharedFilesCount: sharedFiles.length,
       trainedSharedFilesCount: sharedFiles.length,
     };
+  }
+
+  async getCompiledKnowledge(projectId: string | null, userId: string) {
+    const where: any = { user_id: userId, status: 'completed' };
+    if (projectId) {
+      where.project_id = projectId;
+    } else {
+      where.project_id = null;
+    }
+
+    const files = await this.projectFileModel.findAll({
+      where,
+      order: [['createdAt', 'DESC']],
+    });
+
+    if (!files.length) return '';
+
+    const fileIds = files.map((f) => f.id);
+    const [rows] = await this.sequelize.query(
+      `SELECT file_id, chunk_text, chunk_index
+       FROM document_chunks
+       WHERE file_id = ANY($1)
+       ORDER BY file_id, chunk_index ASC`,
+      { bind: [fileIds] },
+    );
+
+    const chunksByFile = new Map<string, string[]>();
+    (rows as any[]).forEach((r) => {
+      const list = chunksByFile.get(r.file_id) || [];
+      list.push(r.chunk_text);
+      chunksByFile.set(r.file_id, list);
+    });
+
+    return files
+      .map((file) => {
+        const text = (chunksByFile.get(file.id) || []).join('\n');
+        return `# ${file.filename}\n${text}`.trim();
+      })
+      .join('\n\n');
   }
 
   private async updateProjectFilesCount(projectId: string | null) {

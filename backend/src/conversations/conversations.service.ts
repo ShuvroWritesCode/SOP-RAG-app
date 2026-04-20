@@ -100,13 +100,19 @@ export class ConversationsService {
       };
     }
 
-    const messages: IMessage[] = conversation.messageModels.map((msg) => ({
+    const messages: IMessage[] = conversation.messageModels
+      .slice()
+      .sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime(),
+      )
+      .map((msg) => ({
       type: msg.type,
       message: msg.text,
       messageId: msg.id,
       previousMessageId: msg.previous_message_id,
       createdAt: msg.createdAt.toISOString(),
-    }));
+      }));
 
     return {
       project_id: conversation.project_id,
@@ -184,8 +190,26 @@ export class ConversationsService {
 
     let previousMessageId = lastMessage?.id || null;
     const newMessageIds: string[] = [...(conversation.messages || [])];
+    const existingMessages = await this.messageModel.findAll({
+      where: { conversation_id: conversationId },
+      attributes: ['type', 'text', 'createdAt'],
+    });
 
     for (const messageData of messagesToSave) {
+      const incomingCreatedAt = messageData.createdAt
+        ? new Date(messageData.createdAt).toISOString()
+        : null;
+      const alreadyExists = existingMessages.some(
+        (m) =>
+          m.type === (messageData.type as MessageTypes) &&
+          m.text === messageData.message &&
+          (!incomingCreatedAt ||
+            m.createdAt.toISOString() === incomingCreatedAt),
+      );
+      if (alreadyExists) {
+        continue;
+      }
+
       const message = await this.messageModel.create({
         conversation_id: conversationId,
         assistant_id: config.assistant_id || null,

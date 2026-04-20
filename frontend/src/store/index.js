@@ -3,8 +3,8 @@ import axiosConfigured from '@/axios'
 import { createStore } from 'vuex'
 
 const KT = 't';
-const API_URL = process.env.VUE_APP_API_HOST;
-let API_BOT_ID = process.env.VUE_APP_API_BOT_ID;
+const API_URL = process.env.VUE_APP_API_HOST || '';
+let API_BOT_ID = process.env.VUE_APP_API_BOT_ID || '';
 
 function setKT(t) {
   if (t === null || t === undefined) {
@@ -259,7 +259,7 @@ export default createStore({
     },
 
     register(context, payload) {
-      return axiosConfigured.post('/users/registration', payload)
+      return axiosConfigured.post('/auth/register', payload)
         .catch(error => {
           if (error.message === 'User already exists') {
             return;
@@ -536,15 +536,15 @@ export default createStore({
 
     async downloadFile(context, { fileId, fileName }) {
       try {
-        const response = await axiosConfigured.get(API_URL + `/api/files/${fileId}/download`, {
-          responseType: "blob",
-        });
-
-        // Create download link
-        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const response = await axiosConfigured.get(API_URL + `/api/files/${fileId}/download`);
+        const metadataBlob = new Blob(
+          [JSON.stringify(response.data?.data || response.data, null, 2)],
+          { type: "application/json" },
+        );
+        const url = window.URL.createObjectURL(metadataBlob);
         const link = document.createElement("a");
         link.href = url;
-        link.setAttribute("download", fileName);
+        link.setAttribute("download", `${fileName}.metadata.json`);
         document.body.appendChild(link);
         link.click();
         link.remove();

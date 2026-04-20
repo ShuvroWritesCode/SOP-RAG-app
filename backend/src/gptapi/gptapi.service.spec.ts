@@ -1,4 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
+import { HttpService } from '@nestjs/axios';
 import { GptapiService } from './gptapi.service';
 
 describe('GptapiService', () => {
@@ -6,7 +7,17 @@ describe('GptapiService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GptapiService],
+      providers: [
+        GptapiService,
+        {
+          provide: HttpService,
+          useValue: { post: jest.fn() },
+        },
+        {
+          provide: 'GPT_API_CONFIG',
+          useValue: { openrouter_api_key: 'test-key' },
+        },
+      ],
     }).compile();
 
     service = module.get<GptapiService>(GptapiService);

@@ -1,20 +1,11 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { RegistrationDTO } from './dto/registrer.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { Request } from 'express';
 
 @Controller('users')
 export class UsersController {
   constructor(private userService: UsersService) {}
-
-  @Post('registration')
-  async registration(@Body() payload: RegistrationDTO) {
-    await this.userService.registration(payload);
-    return {
-      status: true,
-    };
-  }
 
   @Get('me')
   @UseGuards(JwtAuthGuard)

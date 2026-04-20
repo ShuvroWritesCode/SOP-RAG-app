@@ -354,19 +354,15 @@ export default {
 
 		async downloadFile(file) {
 			try {
-				const response = await axios.get(
-					`/api/files/${file.id}/download`,
-					{
-						responseType: "blob",
-					}
+				const response = await axios.get(`/api/files/${file.id}/download`);
+				const metadataBlob = new Blob(
+					[JSON.stringify(response.data?.data || response.data, null, 2)],
+					{ type: "application/json" }
 				);
-
-				const url = window.URL.createObjectURL(
-					new Blob([response.data])
-				);
+				const url = window.URL.createObjectURL(metadataBlob);
 				const link = document.createElement("a");
 				link.href = url;
-				link.setAttribute("download", file.original_name);
+				link.setAttribute("download", `${file.original_name}.metadata.json`);
 				document.body.appendChild(link);
 				link.click();
 				link.remove();

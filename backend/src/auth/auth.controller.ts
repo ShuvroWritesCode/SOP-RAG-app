@@ -3,7 +3,6 @@ import {
   Controller,
   Get,
   Post,
-  Render,
   Request,
   UseGuards,
   UseInterceptors,
@@ -38,7 +37,6 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(@Request() req, @Body() loginDto: ILoginParams) {
-    console.log('Login request received:', loginDto);
     const result = await this.authService.login(loginDto);
     return {
       status: true,
@@ -77,11 +75,5 @@ export class AuthController {
       status: true,
       message: 'Logged out successfully',
     };
-  }
-
-  @Get('login')
-  @Render('pages/login')
-  loginForm() {
-    return {};
   }
 }

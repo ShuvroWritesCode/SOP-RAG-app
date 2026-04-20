@@ -7,9 +7,10 @@ import { ProjectManagementController } from './management/project-management.con
 import { DatabaseModule } from '../database/database.module';
 import { IdentityModule } from '../identity/identity.module';
 import { BotsModule } from '../bots/bots.module';
+import { OpenaiKnowledgeModule } from 'src/openai-knowledge/openai-knowledge.module';
 
 @Module({
-  imports: [DatabaseModule, IdentityModule, BotsModule],
+  imports: [DatabaseModule, IdentityModule, BotsModule, OpenaiKnowledgeModule],
   providers: [
     ProjectsService,
     {

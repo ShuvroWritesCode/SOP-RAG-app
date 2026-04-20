@@ -8,20 +8,24 @@ import { AiModelsService } from 'src/ai-models/ai-models.service';
 
 @Injectable()
 export class RagService {
-  private readonly openai: OpenAI;
+  private readonly openai: OpenAI | null;
 
   constructor(
     @Inject('SEQUELIZE') private readonly sequelize: Sequelize,
     private readonly aiModelsService: AiModelsService,
   ) {
-    this.openai = new OpenAI({
-      baseURL: 'https://openrouter.ai/api/v1',
-      apiKey: process.env.OPENROUTER_API_KEY,
-      defaultHeaders: {
-        'HTTP-Referer': 'https://sop-rag-app.local',
-        'X-Title': 'SOP RAG App',
-      },
-    });
+    if (process.env.OPENROUTER_API_KEY) {
+      this.openai = new OpenAI({
+        baseURL: 'https://openrouter.ai/api/v1',
+        apiKey: process.env.OPENROUTER_API_KEY,
+        defaultHeaders: {
+          'HTTP-Referer': 'https://sop-rag-app.local',
+          'X-Title': 'SOP RAG App',
+        },
+      });
+    } else {
+      this.openai = null;
+    }
   }
 
   async extractText(buffer: Buffer, filename: string): Promise<string> {
@@ -51,6 +55,10 @@ export class RagService {
   }
 
   async embedText(text: string): Promise<number[]> {
+    if (!this.openai) {
+      // Local/test fallback: deterministic neutral embedding when provider is not configured.
+      return new Array(1536).fill(0);
+    }
     const response = await this.openai.embeddings.create({
       model: 'openai/text-embedding-3-small',
       input: text,
@@ -65,17 +73,28 @@ export class RagService {
     userId: string,
   ): Promise<void> {
     for (let i = 0; i < chunks.length; i++) {
-      const embedding = await this.embedText(chunks[i]);
-      const vectorLiteral = `[${embedding.join(',')}]`;
-      await this.sequelize.query(
-        `INSERT INTO document_chunks
-           (id, file_id, project_id, user_id, chunk_text, chunk_index, embedding, "createdAt", "updatedAt")
-         VALUES
-           (gen_random_uuid(), $1, $2, $3, $4, $5, $6::vector, NOW(), NOW())`,
-        {
-          bind: [fileId, projectId, userId, chunks[i], i, vectorLiteral],
-        },
-      );
+      if (this.sequelize.getDialect() === 'postgres') {
+        const embedding = await this.embedText(chunks[i]);
+        const vectorLiteral = `[${embedding.join(',')}]`;
+        await this.sequelize.query(
+          `INSERT INTO document_chunks
+             (id, file_id, project_id, user_id, chunk_text, chunk_index, embedding, "createdAt", "updatedAt")
+           VALUES
+             (gen_random_uuid(), $1, $2, $3, $4, $5, $6::vector, NOW(), NOW())`,
+          {
+            bind: [fileId, projectId, userId, chunks[i], i, vectorLiteral],
+          },
+        );
+      } else {
+        const DocumentChunkModel = this.sequelize.models.DocumentChunkModel as any;
+        await DocumentChunkModel.create({
+          file_id: fileId,
+          project_id: projectId,
+          user_id: userId,
+          chunk_text: chunks[i],
+          chunk_index: i,
+        });
+      }
     }
   }
 
@@ -109,6 +128,32 @@ export class RagService {
     userId: string,
     topK = 5,
   ): Promise<{ chunk_text: string; similarity: number }[]> {
+    if (this.sequelize.getDialect() !== 'postgres') {
+      const like = `%${query}%`;
+      const sql = projectId
+        ? `
+          SELECT chunk_text,
+                 CASE WHEN chunk_text LIKE $1 THEN 1 ELSE 0 END AS similarity
+          FROM document_chunks
+          WHERE user_id = $2 AND (project_id = $3 OR project_id IS NULL)
+          ORDER BY similarity DESC, chunk_index ASC
+          LIMIT $4
+        `
+        : `
+          SELECT chunk_text,
+                 CASE WHEN chunk_text LIKE $1 THEN 1 ELSE 0 END AS similarity
+          FROM document_chunks
+          WHERE user_id = $2 AND project_id IS NULL
+          ORDER BY similarity DESC, chunk_index ASC
+          LIMIT $3
+        `;
+      const bind = projectId
+        ? [like, userId, projectId, topK]
+        : [like, userId, topK];
+      const [rows] = await this.sequelize.query(sql, { bind });
+      return rows as { chunk_text: string; similarity: number }[];
+    }
+
     const queryEmbedding = await this.embedText(query);
     const vectorLiteral = `[${queryEmbedding.join(',')}]`;
 
@@ -167,6 +212,13 @@ export class RagService {
       ...history,
       { role: 'user', content: userMessage },
     ];
+
+    if (!this.openai) {
+      const fallback =
+        'AI response is unavailable because OPENROUTER_API_KEY is not configured.';
+      res.write(`data: ${JSON.stringify({ token: fallback })}\n\n`);
+      return fallback;
+    }
 
     const activeModel = await this.aiModelsService.getActiveModel();
 

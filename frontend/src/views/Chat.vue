@@ -181,6 +181,7 @@
 
 <script>
 import axios from "@/axios";
+const API_BASE = process.env.VUE_APP_API_HOST || "";
 
 export default {
 	props: {
@@ -239,7 +240,7 @@ export default {
 				}
 				// For general chat, we don't pass project_id (it will be null)
 
-				const response = await axios.get('/conversations/list-of-conversations', {
+				const response = await axios.get('/api/list-of-conversations', {
 					params: params
 				});
 
@@ -262,7 +263,7 @@ export default {
 
 			this.isLoadingConversation = true;
 			try {
-				const response = await axios.get('/conversations/conversation-history', {
+				const response = await axios.get('/api/conversation-history', {
 					params: { conversationId }
 				});
 
@@ -454,13 +455,12 @@ export default {
 				...(userId && { userId }),
 			});
 
-			// Grab the JWT token that axios interceptors attach
-			const token = axios.defaults.headers.common["Authorization"];
+			const token = localStorage.getItem("t");
 
 			try {
-				const response = await fetch(`/api/complete?${params}`, {
+				const response = await fetch(`${API_BASE}/api/complete?${params}`, {
 					headers: {
-						...(token && { Authorization: token }),
+						...(token && { Authorization: `Bearer ${token}` }),
 						Accept: "text/event-stream",
 					},
 				});
@@ -472,6 +472,7 @@ export default {
 				const reader = response.body.getReader();
 				const decoder = new TextDecoder();
 				let buffer = "";
+				let streamFailed = false;
 
 				while (true) {
 					const { done, value } = await reader.read();
@@ -502,10 +503,18 @@ export default {
 							if (data.error) {
 								this.questions.splice(aiMsgIdx, 1);
 								console.error("Stream error:", data.error);
+								streamFailed = true;
+								break;
 							}
-						} catch {
-							// malformed chunk — ignore
+						} catch (parseError) {
+							// malformed chunk or error payload; keep stream alive unless it is explicit error
+							if (parseError instanceof Error && parseError.message) {
+								console.error(parseError.message);
+							}
 						}
+					}
+					if (streamFailed) {
+						break;
 					}
 				}
 			} catch (error) {

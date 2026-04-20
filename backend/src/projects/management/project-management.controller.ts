@@ -25,6 +25,7 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { UserModel } from 'src/users/entities/user.model';
 import { AuthedWithBot } from 'src/authed-with-bot.decorator';
 import { BotsService } from 'src/bots/bots.service';
+import { OpenaiKnowledgeService } from 'src/openai-knowledge/openai-knowledge.service';
 
 @Controller('projects/management')
 @UseInterceptors(NamedModuleInterceptor)
@@ -33,6 +34,7 @@ export class ProjectManagementController {
   constructor(
     private projectsService: ProjectsService,
     private botsService: BotsService,
+    private openaiKnowledgeService: OpenaiKnowledgeService,
   ) {}
 
   // @Get('/create')
@@ -67,10 +69,13 @@ export class ProjectManagementController {
   @Post('/create')
   @UseGuards(JwtAuthGuard)
   async create(@Body() body: ICreateProjectDTO, @Req() req: Request) {
-    // const user = req?.user as any;
+    const user = req.user as any;
     return {
       status: true,
-      data: await this.projectsService.createProject(body),
+      data: await this.projectsService.createProject({
+        ...body,
+        user_id: user.id,
+      }),
     };
   }
 
@@ -90,12 +95,20 @@ export class ProjectManagementController {
       throw new HttpException('Input file is required', HttpStatus.BAD_REQUEST);
     }
 
-    // Since the train method doesn't exist in the simplified ProjectsService,
-    // we'll return a placeholder response
+    const fileBuffer = files?.file?.[0]?.buffer || Buffer.from(inputText, 'utf-8');
+    const fileName = files?.file?.[0]?.originalname || `inline-${Date.now()}.txt`;
+    const uploaded = await this.openaiKnowledgeService.uploadFileForRetrieval(
+      project_id || null,
+      fileBuffer,
+      fileName,
+      user.id as any,
+    );
+
     return {
       status: true,
       data: {
-        message: 'Training functionality has been moved to the API controller',
+        message: 'Training completed',
+        fileId: uploaded.dbFileId,
       },
     };
   }
@@ -107,20 +120,13 @@ export class ProjectManagementController {
     @Query('project_id') project_id: string,
   ) {
     const user = req.user as any;
-    const bot = await this.botsService.getDefaultBotForUser({
-      user_id: user.id,
-    });
-
-    // Since the getCompiledTrainData method doesn't exist in the simplified ProjectsService,
-    // we'll return a placeholder response
+    const data = await this.openaiKnowledgeService.getCompiledKnowledge(
+      project_id || null,
+      user.id,
+    );
     return {
       status: true,
-      data: {
-        message:
-          'Knowledge base functionality has been moved to the API controller',
-        bot_id: bot.id.toString(),
-        project_id,
-      },
+      data,
     };
   }
 

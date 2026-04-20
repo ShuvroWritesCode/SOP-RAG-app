@@ -19,7 +19,7 @@ export class UsersService {
     });
   }
 
-  async findById(id: number): Promise<UserModel | null> {
+  async findById(id: string): Promise<UserModel | null> {
     return await this.userModel.findByPk(id);
   }
 
@@ -45,7 +45,7 @@ export class UsersService {
   }
 
   async getUserWithAssistant(
-    id: number,
+    id: string,
   ): Promise<{ user: UserModel; default_assistant: any } | null> {
     const user = await this.findById(id);
     if (!user) {

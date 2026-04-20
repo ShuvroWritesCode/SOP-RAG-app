@@ -5,7 +5,7 @@ import {
   HttpException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { Request, Response } from 'express';
+import { Response } from 'express';
 
 @Catch(UnauthorizedException)
 export class OnUnauthorizedExceptionFilter<T> implements ExceptionFilter {
@@ -13,10 +13,10 @@ export class OnUnauthorizedExceptionFilter<T> implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const status = exception.getStatus();
-
-    if (ctx.getRequest<Request>().method === 'GET') {
-      return response.redirect(401, '/auth/login');
-    }
-    ctx.getNext()(exception, host);
+    const message = exception.message || 'Unauthorized';
+    return response.status(status).json({
+      statusCode: status,
+      message,
+    });
   }
 }

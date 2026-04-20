@@ -88,7 +88,7 @@
 <script>
 import axiosConfigured from '@/axios';
 
-const API_URL = process.env.VUE_APP_API_HOST;
+const API_URL = process.env.VUE_APP_API_HOST || '';
 
 export default {
   name: 'ConversationsTable',
@@ -192,7 +192,7 @@ export default {
       try {
         this.renamingConversation = conversation.id;
 
-        const response = await axiosConfigured.put(API_URL + '/conversations/rename-conversation', {
+        const response = await axiosConfigured.put(API_URL + '/api/rename-conversation', {
           conversationId: conversation.id,
           name: newName
         });

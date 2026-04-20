@@ -4,11 +4,11 @@
 		<meta charset="utf-8" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 		<meta name="viewport" content="width=device-width,initial-scale=1.0" />
-		<link rel="icon" href="<%= BASE_URL %><%= VUE_APP_FAVICON %>" />
-		<title><%= VUE_APP_TITLE %></title>
+		<link rel="icon" href="<%= BASE_URL %><%= typeof VUE_APP_FAVICON !== 'undefined' ? VUE_APP_FAVICON : 'favicon.ico' %>" />
+		<title><%= typeof VUE_APP_TITLE !== 'undefined' ? VUE_APP_TITLE : 'SOP RAG App' %></title>
 		<script>
-			var API_URL = "<%= VUE_APP_API_HOST %>";
-			var API_BOT_ID = +"<%= VUE_APP_API_BOT_ID %>";
+			var API_URL = "<%= typeof VUE_APP_API_HOST !== 'undefined' ? VUE_APP_API_HOST : '' %>";
+			var API_BOT_ID = +"<%= typeof VUE_APP_API_BOT_ID !== 'undefined' ? VUE_APP_API_BOT_ID : '0' %>";
 		</script>
 		<script
 			async
@@ -22,7 +22,7 @@
 	<body>
 		<noscript>
 			<strong
-				>We're sorry but <%= VUE_APP_TITLE %> doesn't work properly
+				>We're sorry but <%= typeof VUE_APP_TITLE !== 'undefined' ? VUE_APP_TITLE : 'SOP RAG App' %> doesn't work properly
 				without JavaScript enabled. Please enable it to
 				continue.</strong
 			>

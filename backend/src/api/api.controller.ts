@@ -35,6 +35,15 @@ import { ConversationsService } from 'src/conversations/conversations.service';
 import { RagService } from 'src/rag/rag.service';
 import * as crypto from 'crypto';
 
+interface IRenameConversationDTO {
+  conversationId: string;
+  name: string;
+}
+
+interface IDeleteConversationDTO {
+  conversationId: string;
+}
+
 @Controller('api')
 @UseInterceptors(AuthedWithBot)
 export class ApiController {
@@ -270,6 +279,31 @@ export class ApiController {
     return { status: true };
   }
 
+  @Put('rename-conversation')
+  @UseGuards(JwtAuthGuard)
+  public async renameConversation(@Body() body: IRenameConversationDTO) {
+    const result = await this.conversationsService.renameConversation(
+      body.conversationId,
+      body.name,
+    );
+    return {
+      success: result.success,
+      message: result.message,
+    };
+  }
+
+  @Delete('delete-conversation')
+  @UseGuards(JwtAuthGuard)
+  public async deleteConversation(@Body() body: IDeleteConversationDTO) {
+    const result = await this.conversationsService.deleteConversation(
+      body.conversationId,
+    );
+    return {
+      success: result.success,
+      message: result.message,
+    };
+  }
+
   @Post('default-project')
   @UseGuards(JwtAuthGuard)
   public async getDefaultProject(@Req() req: Request) {
@@ -378,11 +412,14 @@ export class ApiController {
   @Put('file-connection')
   @UseGuards(JwtAuthGuard)
   async updateFileConnection(
+    @Req() req: Request,
     @Body() body: { project_id: string; learning_session_id: string; status: boolean },
   ) {
+    const user = req.user as any;
     await this.openaiKnowledgeService.updateFileProject(
       body.learning_session_id,
       body.status ? body.project_id : null,
+      user?.id,
     );
     return { status: true };
   }
@@ -436,9 +473,11 @@ export class ApiController {
   @UseGuards(JwtAuthGuard)
   async downloadFile(
     @Param('fileId') fileId: string,
+    @Req() req: Request,
     @Res() res: Response,
   ) {
-    const file = await this.openaiKnowledgeService.getFileById(fileId);
+    const user = req.user as any;
+    const file = await this.openaiKnowledgeService.getFileById(fileId, user?.id);
     if (!file) {
       throw new HttpException('File not found', HttpStatus.NOT_FOUND);
     }
@@ -468,14 +507,20 @@ export class ApiController {
   @Get('saved-knowledge')
   @UseGuards(JwtAuthGuard)
   async getSavedKnowledge(
+    @Req() req: Request,
     @Query('project_id') project_id?: string,
     @Query('project_link') project_link?: string,
   ) {
+    const user = req.user as any;
+    const data = await this.openaiKnowledgeService.getCompiledKnowledge(
+      project_id || null,
+      user?.id,
+    );
     return {
       status: true,
       project_id: project_id || null,
       project_link: project_link || null,
-      data: '',
+      data,
     };
   }
 
@@ -492,7 +537,12 @@ export class ApiController {
 
   @Delete('saved-knowledge-qoidoqe2koakjfoqwe')
   @UseGuards(JwtAuthGuard)
-  async deleteSavedKnowledge(@Query('id') id: string) {
-    return { status: true, data: null };
+  async deleteSavedKnowledge(@Req() req: Request, @Query('id') id: string) {
+    if (!id) {
+      throw new HttpException('File id is required', HttpStatus.BAD_REQUEST);
+    }
+    const user = req.user as any;
+    await this.openaiKnowledgeService.deleteFile(null, id, user?.id);
+    return { status: true, data: id };
   }
 }

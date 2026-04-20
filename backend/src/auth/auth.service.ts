@@ -25,8 +25,6 @@ export class AuthService {
   ) {}
 
   public async validateUser({ email, password }: ILoginParams): Promise<any> {
-    console.log('Validating user with email:', email);
-    console.log('Validating user with password:', password);
     const user = await this.usersService.findByEmail(email);
     if (!user) return null;
 
@@ -58,9 +56,7 @@ export class AuthService {
   }
 
   public async login(payload: ILoginParams): Promise<AuthResponse> {
-    console.log('authService Payload:', payload);
     const user = await this.validateUser(payload);
-    console.log('User found:', user);
 
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');

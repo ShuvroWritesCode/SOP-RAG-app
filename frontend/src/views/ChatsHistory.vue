@@ -257,7 +257,7 @@ export default {
     methods: {
         async loadGeneralConversations() {
             try {
-                const response = await axios.get('/conversations/list-of-conversations');
+                const response = await axios.get('/api/list-of-conversations');
                 this.generalConversations = Object.values(response.data.data).map(conv => ({
                     id: conv.id,
                     name: conv.name,
@@ -415,7 +415,7 @@ export default {
             if (!newName) return;
 
             try {
-                const response = await axios.put(API_URL + '/conversations/rename-conversation', {
+                const response = await axios.put(API_URL + '/api/rename-conversation', {
                     conversationId: conversation.id,
                     name: newName
                 });
@@ -489,7 +489,7 @@ export default {
 
             try {
                 this.isDeleting = true;
-                const response = await axios.delete(API_URL + '/conversations/delete-conversation', {
+                const response = await axios.delete(API_URL + '/api/delete-conversation', {
                     data: {
                         conversationId: this.conversationToDelete.id
                     }

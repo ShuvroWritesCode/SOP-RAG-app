@@ -28,6 +28,7 @@ module.exports = defineConfig({
       '/bots': backendProxy,
       '/openai-knowledge': backendProxy,
       '/conversations': backendProxy,
+      '/ai-models': backendProxy,
     }
   }
 })

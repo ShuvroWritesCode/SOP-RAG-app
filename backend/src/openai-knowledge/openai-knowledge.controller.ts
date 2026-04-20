@@ -247,10 +247,16 @@ export class OpenaiKnowledgeController {
    * Get all files for a project
    */
   @Get('files/:projectId')
-  async getProjectFiles(@Param('projectId') projectId: string) {
+  @UseGuards(JwtAuthGuard)
+  async getProjectFiles(
+    @Param('projectId') projectId: string,
+    @Req() req: Request,
+  ) {
     try {
+      const user = req.user as any;
       const files = await this.openaiKnowledgeService.getProjectFiles(
         projectId,
+        user?.id,
       );
 
       return { success: true, files };
@@ -266,6 +272,7 @@ export class OpenaiKnowledgeController {
    * Update assistant instructions (no-op in RAG mode)
    */
   @Put('assistant/:projectId/instructions')
+  @UseGuards(JwtAuthGuard)
   async updateInstructions(
     @Param('projectId') projectId: string,
     @Body('instructions') instructions: string,
@@ -297,14 +304,18 @@ export class OpenaiKnowledgeController {
    * Delete a file from a project's knowledge base
    */
   @Delete('file/:projectId/:fileId')
+  @UseGuards(JwtAuthGuard)
   async deleteFile(
     @Param('projectId') projectId: string,
     @Param('fileId') fileId: string,
+    @Req() req: Request,
   ) {
     try {
+      const user = req.user as any;
       const result = await this.openaiKnowledgeService.deleteFile(
         projectId,
         fileId,
+        user?.id,
       );
 
       return { success: result.success, message: 'File deleted successfully' };
@@ -353,10 +364,16 @@ export class OpenaiKnowledgeController {
    * Retry training failed files for a project
    */
   @Post('retry-train/:projectId')
-  async retryTrainFiles(@Param('projectId') projectId: string) {
+  @UseGuards(JwtAuthGuard)
+  async retryTrainFiles(
+    @Param('projectId') projectId: string,
+    @Req() req: Request,
+  ) {
     try {
+      const user = req.user as any;
       const result = await this.openaiKnowledgeService.retryFailedFiles(
         projectId,
+        user?.id,
       );
 
       return {
@@ -377,14 +394,18 @@ export class OpenaiKnowledgeController {
    * Get files by status for a project
    */
   @Get('files/:projectId/status/:status')
+  @UseGuards(JwtAuthGuard)
   async getFilesByStatus(
     @Param('projectId') projectId: string,
     @Param('status') status: string,
+    @Req() req: Request,
   ) {
     try {
+      const user = req.user as any;
       const files = await this.openaiKnowledgeService.getFilesByStatus(
         projectId,
         status,
+        user?.id,
       );
 
       return { success: true, files };

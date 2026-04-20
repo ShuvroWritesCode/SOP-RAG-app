@@ -87,7 +87,7 @@ export default {
             return this.$store.getters.getAvailableProjects.sort((a, b) => b.id - a.id);
         },
         API_URL() {
-            return process.env.VUE_APP_API_HOST;
+            return process.env.VUE_APP_API_HOST || '';
         },
         currentBot() {
             return this.$store.getters.getProfile?.default_bot;
