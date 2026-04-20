@@ -8,7 +8,14 @@
     </template>
     <router-view v-if="loaded" />
     <footer class="global-footer" v-if="loaded">
-      © 2026 | Developed and maintained by Kaizen Apps
+      © 2026 | Developed and maintained by
+      <a
+        href="https://kaizenapps.com"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        Kaizen Apps
+      </a>
     </footer>
   </div>
 </template>
@@ -124,6 +131,11 @@ export default {
   background: rgba(15, 23, 42, 0.9);
   border-top: 1px solid #334155;
   font-size: 0.9rem;
+}
+
+.global-footer a {
+  color: #ffffff;
+  text-decoration: underline;
 }
 
 /* Modern scrollbar */
